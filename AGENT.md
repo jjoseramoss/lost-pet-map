@@ -1,0 +1,81 @@
+# Lost Pet Map (Hackathon MVP)
+
+## One-liner
+A map-first web app for the RGV that centralizes lost pets, found/stray sightings, and shelter intakes, with AI photo similarity to suggest matches.
+
+## MVP goals (24h)
+- Anyone can view the map and posts (no login)
+- Anyone can anonymously submit a **Lost** or **Found** report
+- New posts appear live on the map via realtime updates
+- After posting, show a **Possible matches** list (photo similarity + duplicate detection)
+- Seed initial data by scraping 1–2 local shelter pages and importing into the database
+
+## Tech stack (locked)
+- Frontend: `Next.js` (App Router) + `TypeScript` + `TailwindCSS`
+- Map: `Mapbox GL` via `react-map-gl`
+- Backend/API: `Next.js` Route Handlers
+- Database: `Supabase Postgres`
+- Realtime: `Supabase Realtime` (listen to inserts/updates on posts)
+- Photo storage: `Supabase Storage` (public bucket for MVP)
+- AI matching: image embedding + cosine similarity (MVP: compute in API; upgrade later to pgvector)
+- Scraping/import: a script (Node or Python) that upserts into Supabase
+
+## Current repo status
+- Scaffolded Next.js app in this folder
+- Map template component renders demo pins once `NEXT_PUBLIC_MAPBOX_TOKEN` is set
+
+Key files:
+- `src/app/page.tsx` layout + map page
+- `src/components/map-shell.tsx` Mapbox map + demo pins
+- `.env.example` env var template
+
+## Environment variables
+Put these in `.env.local` (copy from `.env.example`):
+- `NEXT_PUBLIC_MAPBOX_TOKEN`
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+
+Server-side only (later):
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `OPENAI_API_KEY`
+
+## Data model (MVP)
+Single table: `pets_posts`
+- `id` uuid
+- `type` enum/text: `lost | found | shelter`
+- `lat` double, `lng` double
+- `description` text
+- `contact_name` text, `contact_phone` text nullable, `contact_email` text nullable
+- `photo_url` text
+- `source` text: `user | scrape`
+- `source_url` text nullable
+- `created_at` timestamptz
+- `image_embedding` json/float[] nullable
+
+## Supabase policies (MVP)
+- Public `SELECT` on `pets_posts`
+- Public `INSERT` on `pets_posts`
+- Storage bucket set to public (MVP only)
+
+## Pages / UX
+- `/` Map view
+  - Pins for lost/found/shelter
+  - Click pin → details (photo, description, contact)
+  - Filters (type/species/date/radius) if time
+- `/report` Create post
+  - Choose lost/found, place pin, upload photo, add contact
+  - On success → show matches
+- `/matches/:id` Match results
+  - Top-N similar posts, link each back to map
+
+## 24h build order (suggested)
+1) Supabase: table + RLS + Storage bucket
+2) Map reads from Supabase (instead of demo pins)
+3) Realtime subscription updates pins live
+4) Report form: upload → insert row
+5) Matching endpoint: embedding + similarity
+6) Scraper/import script for shelter seed data
+
+## Notes for agents
+- There is an `AGENTS.md` file with Next.js-specific warnings; follow it.
+- Keep scope tight: working map + posting + seed data beats extra features.
