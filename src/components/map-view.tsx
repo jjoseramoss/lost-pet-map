@@ -5,34 +5,11 @@ import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Map, { type MapRef, Marker, Popup } from "react-map-gl/mapbox";
 import lostDogPhoto from "@/app/lostdog.png";
+import { getPublicStorageUrl } from "@/lib/storage/public-url";
+import { listPosts, subscribeToPostChanges } from "@/lib/posts/queries";
+import type { PetPost } from "@/lib/posts/types";
 
-type DemoPin = {
-  id: string;
-  type: "lost" | "found";
-  title: string;
-  description: string;
-  lat: number;
-  lng: number;
-};
-
-const demoPins: DemoPin[] = [
-  {
-    id: "1",
-    type: "lost",
-    title: "Lost dog",
-    description: "Last seen near UTRGV (demo)",
-    lat: 26.3066,
-    lng: -98.1746,
-  },
-  {
-    id: "2",
-    type: "found",
-    title: "Found cat",
-    description: "Spotted near McAllen (demo)",
-    lat: 26.2034,
-    lng: -98.23,
-  },
-];
+const photoBucket = "pet-photos";
 
 type MapViewProps = {
   mapboxToken: string;
@@ -71,13 +48,13 @@ const mapConfig: { basemap: Record<string, string | boolean> } = {
   },
 };
 
-function PinIcon({ title }: { title: string }) {
+function PinIcon({ title, photoUrl }: { title: string; photoUrl?: string }) {
   return (
     <div title={title} className="drop-shadow">
       <div className="relative flex h-14 w-14 flex-col items-center">
         <div className="relative z-10 h-12 w-12 overflow-hidden rounded-full bg-white shadow-sm">
           <Image
-            src={lostDogPhoto}
+            src={photoUrl ?? lostDogPhoto}
             alt=""
             fill
             sizes="48px"
@@ -99,11 +76,50 @@ export default function MapView({
   const mapRef = useRef<MapRef | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [zoom, setZoom] = useState(initialViewState.zoom);
+  const [posts, setPosts] = useState<PetPost[]>([]);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const selected = useMemo(
-    () => demoPins.find((pin) => pin.id === selectedId) ?? null,
-    [selectedId],
+    () => posts.find((pin) => pin.id === selectedId) ?? null,
+    [posts, selectedId],
   );
+
+  useEffect(() => {
+    let active = true;
+
+    void listPosts({ status: "active" })
+      .then((data) => {
+        if (!active) return;
+        setPosts(data);
+      })
+      .catch((error: unknown) => {
+        if (!active) return;
+        setLoadError(error instanceof Error ? error.message : "Failed to load");
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = subscribeToPostChanges({
+      onInsert: (post) => {
+        setPosts((current) => {
+          if (current.some((existing) => existing.id === post.id)) return current;
+          return [post, ...current];
+        });
+      },
+      onUpdate: (post) => {
+        setPosts((current) => current.map((existing) => (existing.id === post.id ? post : existing)));
+      },
+      onDelete: (post) => {
+        setPosts((current) => current.filter((existing) => existing.id !== post.id));
+      },
+    });
+
+    return unsubscribe;
+  }, []);
 
   useEffect(() => {
     if (!interactive) return;
@@ -155,7 +171,13 @@ export default function MapView({
         style={{ width: "100%", height: "100%" }}
         onClick={() => setSelectedId(null)}
       >
-        {demoPins.map((pin) => (
+        {loadError ? (
+          <div className="absolute left-4 top-4 z-10 rounded-lg bg-white/90 px-3 py-2 text-xs text-red-700 shadow">
+            {loadError}
+          </div>
+        ) : null}
+
+        {posts.map((pin) => (
           <Marker
             key={pin.id}
             longitude={pin.lng}
@@ -177,7 +199,10 @@ export default function MapView({
               className="origin-bottom"
               style={{ transform: `scale(${scale})` }}
             >
-              <PinIcon title={pin.title} />
+              <PinIcon
+                title={pin.pet_name ?? `${pin.post_type} ${pin.species}`}
+                photoUrl={getPublicStorageUrl(photoBucket, pin.photo_path)}
+              />
             </div>
           </Marker>
         ))}
@@ -191,12 +216,14 @@ export default function MapView({
             onClose={() => setSelectedId(null)}
           >
             <div className="min-w-56">
-              <div className="text-sm font-semibold">{selected.title}</div>
+              <div className="text-sm font-semibold">
+                {selected.pet_name ?? "Unknown"}
+              </div>
               <div className="mt-1 text-xs text-zinc-700">
-                {selected.description}
+                {selected.description ?? "No description"}
               </div>
               <div className="mt-2 text-[11px] text-zinc-500">
-                Type: {selected.type}
+                Type: {selected.post_type}
               </div>
             </div>
           </Popup>
