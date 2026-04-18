@@ -31,7 +31,7 @@ A map-first web app for the RGV that centralizes lost pets, found/stray sighting
 Key files:
 - `src/app/page.tsx` layout + map page
 - `src/components/map-shell.tsx` composition + geolocation + intro/nav state
-- `src/components/map-view.tsx` Mapbox map + demo pins + popup
+- `src/components/map-view.tsx` Mapbox map + Supabase pins + popup
 - `src/components/intro-overlay.tsx` intro UI (title/description/continue)
 - `src/components/nav-bar.tsx` responsive nav overlay
 - `.env.example` env var template
@@ -73,6 +73,23 @@ Schema SQL is in `supabase.sql`.
 - Demo rows inserted with `photo_path` like `demo/luna.jpg`
 - Realtime enabled for `public.pet_posts` (table is in `supabase_realtime` publication)
 
+## Backend integration (implemented)
+The map is already connected to Supabase.
+
+Implemented modules:
+- `src/lib/env.ts` env access + required key checks
+- `src/lib/supabase/browser.ts` Supabase browser client factory
+- `src/lib/posts/types.ts` `PetPost` type matching `public.pet_posts`
+- `src/lib/posts/queries.ts`
+  - `listPosts()` fetches posts from `pet_posts`
+  - `subscribeToPostChanges()` subscribes to realtime `INSERT/UPDATE/DELETE`
+- `src/lib/storage/public-url.ts` helper to build public Storage URLs
+
+UI behavior:
+- Pins load from `pet_posts` (filtered to `status='active'`)
+- Pins update live via realtime subscription
+- Pin avatar uses Storage image URL from bucket `pet-photos` + `photo_path`
+
 Quick verification query:
 
 ```sql
@@ -97,7 +114,7 @@ order by schemaname, tablename;
 1) Supabase: table + RLS + Storage bucket
 2) Map reads from Supabase (instead of demo pins)
 3) Realtime subscription updates pins live
-4) Report form: upload → insert row
+4) Report form UI + submit flow: upload → insert row
 5) Matching endpoint: embedding + similarity
 6) Scraper/import script for shelter seed data
 
