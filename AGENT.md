@@ -58,6 +58,22 @@ Schema SQL is in `supabase.sql`.
 - Public `INSERT` on `pet_posts`
 - Storage bucket set to public (MVP only)
 
+## Supabase setup (what exists now)
+- Table: `public.pet_posts` created via `supabase.sql`
+- Storage bucket: `pet-photos` (public)
+- Demo images uploaded under `pet-photos/demo/*.jpg`
+- Demo rows inserted with `photo_path` like `demo/luna.jpg`
+- Realtime enabled for `public.pet_posts` (table is in `supabase_realtime` publication)
+
+Quick verification query:
+
+```sql
+select schemaname, tablename
+from pg_publication_tables
+where pubname = 'supabase_realtime'
+order by schemaname, tablename;
+```
+
 ## Pages / UX
 - `/` Map view
   - Pins for lost/found/shelter
