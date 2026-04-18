@@ -26,6 +26,7 @@ type MapViewProps = {
   interactive: boolean;
   filters: FiltersState;
   onFiltersChange: (next: FiltersState) => void;
+  onFilterOptionsChange: (next: { breeds: string[]; colors: string[] }) => void;
 };
 
 const mapConfig: { basemap: Record<string, string | boolean> } = {
@@ -79,6 +80,7 @@ export default function MapView({
   interactive,
   filters,
   onFiltersChange,
+  onFilterOptionsChange,
 }: MapViewProps) {
   const mapRef = useRef<MapRef | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -94,9 +96,10 @@ export default function MapView({
   const filteredPosts = useMemo(() => {
     const breedQuery = filters.breed.trim().toLowerCase();
     const colorQuery = filters.color.trim().toLowerCase();
+    const nameQuery = filters.petName.trim().toLowerCase();
 
     return posts.filter((post) => {
-      if (!filters.postTypes.includes(post.post_type)) return false;
+      if (filters.postType !== "all" && post.post_type !== filters.postType) return false;
 
       if (breedQuery) {
         const value = (post.breed ?? "").toLowerCase();
@@ -106,6 +109,11 @@ export default function MapView({
       if (colorQuery) {
         const value = (post.color ?? "").toLowerCase();
         if (!value.includes(colorQuery)) return false;
+      }
+
+      if (nameQuery) {
+        const value = (post.pet_name ?? "").toLowerCase();
+        if (!value.includes(nameQuery)) return false;
       }
 
       if (filters.radius.enabled && filters.radius.center) {
@@ -128,6 +136,8 @@ export default function MapView({
     return circlePolygonGeoJson(filters.radius.center, filters.radius.miles);
   }, [filters.radius.center, filters.radius.enabled, filters.radius.miles]);
 
+  const radiusCenter = filters.radius.enabled ? filters.radius.center : null;
+
   useEffect(() => {
     let active = true;
 
@@ -135,6 +145,16 @@ export default function MapView({
       .then((data) => {
         if (!active) return;
         setPosts(data);
+
+        const breeds = Array.from(
+          new Set(data.map((post) => post.breed).filter((breed): breed is string => Boolean(breed))),
+        ).sort((a, b) => a.localeCompare(b));
+
+        const colors = Array.from(
+          new Set(data.map((post) => post.color).filter((color): color is string => Boolean(color))),
+        ).sort((a, b) => a.localeCompare(b));
+
+        onFilterOptionsChange({ breeds, colors });
       })
       .catch((error: unknown) => {
         if (!active) return;
@@ -144,7 +164,7 @@ export default function MapView({
     return () => {
       active = false;
     };
-  }, []);
+  }, [onFilterOptionsChange]);
 
   useEffect(() => {
     const unsubscribe = subscribeToPostChanges({
@@ -255,6 +275,12 @@ export default function MapView({
               }}
             />
           </Source>
+        ) : null}
+
+        {radiusCenter ? (
+          <Marker longitude={radiusCenter.lng} latitude={radiusCenter.lat} anchor="center">
+            <div className="h-4 w-4 rounded-full bg-amber-500 ring-4 ring-amber-200" />
+          </Marker>
         ) : null}
 
         {filteredPosts.map((pin) => (

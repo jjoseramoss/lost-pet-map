@@ -14,6 +14,10 @@ export default function MapShell() {
   const [showIntro, setShowIntro] = useState(true);
   const [activePanel, setActivePanel] = useState<Exclude<NavItemId, "map"> | null>(null);
   const [filters, setFilters] = useState<FiltersState>(defaultFilters);
+  const [filterOptions, setFilterOptions] = useState({ breeds: [], colors: [] } as {
+    breeds: string[];
+    colors: string[];
+  });
   const [initialViewState, setInitialViewState] = useState({
     longitude: -98.23,
     latitude: 26.2,
@@ -64,12 +68,13 @@ export default function MapShell() {
         interactive={!showIntro && !activePanel}
         filters={filters}
         onFiltersChange={setFilters}
+        onFilterOptionsChange={setFilterOptions}
       />
 
       {!showIntro ? <AppTitle /> : null}
 
       {!showIntro && !activePanel ? (
-        <FilterBar value={filters} onChange={setFilters} />
+        <FilterBar value={filters} onChange={setFilters} options={filterOptions} />
       ) : null}
 
       {showIntro ? <IntroOverlay onContinue={() => setShowIntro(false)} /> : null}

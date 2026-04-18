@@ -11,18 +11,25 @@ export type RadiusFilter = {
 };
 
 export type FiltersState = {
-  postTypes: PostType[];
+  postType: PostType | "all";
   breed: string;
   color: string;
+  petName: string;
   radius: RadiusFilter;
 };
 
-const defaultPostTypes: PostType[] = ["lost", "found", "shelter"];
+const postTypeOptions: Array<FiltersState["postType"]> = [
+  "all",
+  "lost",
+  "found",
+  "shelter",
+];
 
 export const defaultFilters: FiltersState = {
-  postTypes: defaultPostTypes,
+  postType: "all",
   breed: "",
   color: "",
+  petName: "",
   radius: {
     enabled: false,
     miles: 3,
@@ -31,29 +38,10 @@ export const defaultFilters: FiltersState = {
   },
 };
 
-function Chip({
-  active,
-  children,
-  onClick,
-}: {
-  active: boolean;
-  children: React.ReactNode;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={
-        active
-          ? "rounded-full bg-black px-3 py-1 text-xs font-medium text-white"
-          : "rounded-full border border-zinc-200 bg-white px-3 py-1 text-xs font-medium text-zinc-800"
-      }
-    >
-      {children}
-    </button>
-  );
-}
+type FilterOptions = {
+  breeds: string[];
+  colors: string[];
+};
 
 function Field({
   label,
@@ -79,50 +67,131 @@ function Field({
   );
 }
 
+function ComboField({
+  label,
+  value,
+  onChange,
+  placeholder,
+  options,
+  listId,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+  options: string[];
+  listId: string;
+}) {
+  return (
+    <label className="flex flex-col gap-1">
+      <span className="text-[11px] font-medium text-zinc-600">{label}</span>
+      <input
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={placeholder}
+        list={listId}
+        className="h-9 w-full rounded-lg border border-zinc-200 bg-white px-3 text-sm outline-none focus:border-zinc-400"
+      />
+      <datalist id={listId}>
+        {options.map((option) => (
+          <option key={option} value={option} />
+        ))}
+      </datalist>
+    </label>
+  );
+}
+
 function FiltersPanel({
   value,
   onChange,
+  options,
 }: {
   value: FiltersState;
   onChange: (next: FiltersState) => void;
+  options: FilterOptions;
 }) {
-  const activeSet = useMemo(() => new Set(value.postTypes), [value.postTypes]);
+  const [advancedOpen, setAdvancedOpen] = useState(false);
+  const breedOptions = useMemo(() => {
+    const query = value.breed.trim().toLowerCase();
+    if (!query) return options.breeds;
+    return options.breeds.filter((b) => b.toLowerCase().includes(query));
+  }, [options.breeds, value.breed]);
+
+  const colorOptions = useMemo(() => {
+    const query = value.color.trim().toLowerCase();
+    if (!query) return options.colors;
+    return options.colors.filter((c) => c.toLowerCase().includes(query));
+  }, [options.colors, value.color]);
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center gap-2">
-        {defaultPostTypes.map((postType) => (
-          <Chip
-            key={postType}
-            active={activeSet.has(postType)}
-            onClick={() => {
-              const next = new Set(value.postTypes);
-              if (next.has(postType)) next.delete(postType);
-              else next.add(postType);
-              onChange({ ...value, postTypes: Array.from(next) as PostType[] });
-            }}
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+        <label className="flex flex-col gap-1">
+          <span className="text-[11px] font-medium text-zinc-600">Type</span>
+          <select
+            value={value.postType}
+            onChange={(event) =>
+              onChange({
+                ...value,
+                postType: event.target.value as FiltersState["postType"],
+              })
+            }
+            className="h-9 w-full rounded-lg border border-zinc-200 bg-white px-3 text-sm outline-none focus:border-zinc-400"
           >
-            {postType}
-          </Chip>
-        ))}
-      </div>
+            {postTypeOptions.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+        </label>
 
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-        <Field
+        <ComboField
           label="Breed"
           value={value.breed}
           onChange={(breed) => onChange({ ...value, breed })}
-          placeholder="e.g., husky"
+          placeholder="type to search"
+          options={breedOptions}
+          listId="breed-options"
         />
-        <Field
+
+        <ComboField
           label="Color"
           value={value.color}
           onChange={(color) => onChange({ ...value, color })}
-          placeholder="e.g., black"
+          placeholder="type to search"
+          options={colorOptions}
+          listId="color-options"
+        />
+
+        <Field
+          label="Name"
+          value={value.petName}
+          onChange={(petName) => onChange({ ...value, petName })}
+          placeholder="e.g., Luna"
         />
       </div>
 
-      <div className="rounded-xl border border-zinc-200 bg-white p-3">
+      <div className="flex items-center justify-between">
+        <button
+          type="button"
+          className="h-9 rounded-lg border border-zinc-200 bg-white px-3 text-sm"
+          onClick={() => setAdvancedOpen((open) => !open)}
+        >
+          {advancedOpen ? "Hide advanced" : "Advanced"}
+        </button>
+
+        <button
+          type="button"
+          className="h-9 rounded-lg border border-zinc-200 bg-white px-3 text-sm"
+          onClick={() => onChange(defaultFilters)}
+        >
+          Reset
+        </button>
+      </div>
+
+      {!advancedOpen ? null : (
+        <div className="rounded-xl border border-zinc-200 bg-white p-3">
         <div className="flex items-center justify-between">
           <div className="text-sm font-semibold">Radius</div>
           <label className="flex items-center gap-2 text-xs text-zinc-700">
@@ -212,16 +281,9 @@ function FiltersPanel({
           >
             Clear radius
           </button>
-
-          <button
-            type="button"
-            className="h-9 rounded-lg border border-zinc-200 bg-white px-3 text-sm"
-            onClick={() => onChange(defaultFilters)}
-          >
-            Reset all
-          </button>
         </div>
-      </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -229,9 +291,11 @@ function FiltersPanel({
 export default function FilterBar({
   value,
   onChange,
+  options,
 }: {
   value: FiltersState;
   onChange: (next: FiltersState) => void;
+  options: FilterOptions;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -239,14 +303,14 @@ export default function FilterBar({
     <div className="pointer-events-none absolute left-0 top-0 z-20 w-full p-3">
       <div className="mx-auto flex w-full max-w-5xl items-start justify-end gap-3">
         <div className="pointer-events-auto hidden w-full rounded-2xl border border-zinc-200 bg-white/95 p-3 shadow md:block">
-          <FiltersPanel value={value} onChange={onChange} />
+          <FiltersPanel value={value} onChange={onChange} options={options} />
         </div>
 
         <div className="pointer-events-auto md:hidden">
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="h-10 rounded-full bg-white/95 px-4 text-sm font-medium shadow"
+            className="h-10 rounded-full bg-black px-4 text-sm font-semibold text-white shadow"
           >
             Filters
           </button>
@@ -270,7 +334,7 @@ export default function FilterBar({
               </button>
             </div>
             <div className="mt-4">
-              <FiltersPanel value={value} onChange={onChange} />
+              <FiltersPanel value={value} onChange={onChange} options={options} />
             </div>
           </div>
         </div>
