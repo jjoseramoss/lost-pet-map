@@ -22,12 +22,20 @@ A map-first web app for the RGV that centralizes lost pets, found/stray sighting
 
 ## Current repo status
 - Scaffolded Next.js app in this folder
-- Map template component renders demo pins once `NEXT_PUBLIC_MAPBOX_TOKEN` is set
+- Fullscreen Mapbox map with demo pins once `NEXT_PUBLIC_MAPBOX_TOKEN` is set
+- Intro overlay blocks interaction until user clicks Continue
+- Responsive navigation overlay (bottom bar on mobile, vertical rail on desktop)
+- Map style uses Mapbox Standard with basemap config (night preset + custom colors)
+- Initial map view attempts to center from browser geolocation (falls back to default)
 
 Key files:
 - `src/app/page.tsx` layout + map page
-- `src/components/map-shell.tsx` Mapbox map + demo pins
+- `src/components/map-shell.tsx` composition + geolocation + intro/nav state
+- `src/components/map-view.tsx` Mapbox map + demo pins + popup
+- `src/components/intro-overlay.tsx` intro UI (title/description/continue)
+- `src/components/nav-bar.tsx` responsive nav overlay
 - `.env.example` env var template
+- `next.config.ts` disables Next.js dev indicator UI
 
 ## Environment variables
 Put these in `.env.local` (copy from `.env.example`):
