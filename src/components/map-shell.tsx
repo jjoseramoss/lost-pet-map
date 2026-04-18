@@ -3,11 +3,15 @@
 import { useEffect, useState } from "react";
 import IntroOverlay from "@/components/intro-overlay";
 import MapView from "@/components/map-view";
-import NavBar from "@/components/nav-bar";
+import AppTitle from "@/components/app-title";
+import AboutPanel from "@/components/about-panel";
+import ReportPanel from "@/components/report-panel";
+import NavBar, { type NavItemId } from "@/components/nav-bar";
 
 export default function MapShell() {
   const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
   const [showIntro, setShowIntro] = useState(true);
+  const [activePanel, setActivePanel] = useState<Exclude<NavItemId, "map"> | null>(null);
   const [initialViewState, setInitialViewState] = useState({
     longitude: -98.23,
     latitude: 26.2,
@@ -55,11 +59,30 @@ export default function MapShell() {
       <MapView
         mapboxToken={mapboxToken}
         initialViewState={initialViewState}
-        interactive={!showIntro}
+        interactive={!showIntro && !activePanel}
       />
 
+      {!showIntro ? <AppTitle /> : null}
+
       {showIntro ? <IntroOverlay onContinue={() => setShowIntro(false)} /> : null}
-      {!showIntro ? <NavBar /> : null}
+      {activePanel === "report" ? (
+        <ReportPanel onClose={() => setActivePanel(null)} />
+      ) : null}
+      {activePanel === "about" ? (
+        <AboutPanel onClose={() => setActivePanel(null)} />
+      ) : null}
+      {!showIntro ? (
+        <NavBar
+          panelOpen={Boolean(activePanel)}
+          onSelect={(id) => {
+            if (id === "map") {
+              setActivePanel(null);
+              return;
+            }
+            setActivePanel(id);
+          }}
+        />
+      ) : null}
     </div>
   );
 }
