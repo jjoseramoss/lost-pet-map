@@ -56,12 +56,12 @@ function Field({
 }) {
   return (
     <label className="flex flex-col gap-1">
-      <span className="text-[11px] font-medium text-zinc-600">{label}</span>
+      <span className="text-[11px] font-medium text-black">{label}</span>
       <input
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
-        className="h-9 w-full rounded-lg border border-zinc-200 bg-white px-3 text-sm outline-none focus:border-zinc-400"
+        className="h-8 w-full rounded-lg border border-zinc-200 bg-white px-2 text-sm outline-none focus:border-zinc-400"
       />
     </label>
   );
@@ -84,13 +84,13 @@ function ComboField({
 }) {
   return (
     <label className="flex flex-col gap-1">
-      <span className="text-[11px] font-medium text-zinc-600">{label}</span>
+      <span className="text-[11px] font-medium text-black">{label}</span>
       <input
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
         list={listId}
-        className="h-9 w-full rounded-lg border border-zinc-200 bg-white px-3 text-sm outline-none focus:border-zinc-400"
+        className="h-8 w-full rounded-lg border border-zinc-200 bg-white px-2 text-sm outline-none focus:border-zinc-400"
       />
       <datalist id={listId}>
         {options.map((option) => (
@@ -127,7 +127,7 @@ function FiltersPanel({
     <div className="flex flex-col gap-4">
       <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] font-medium text-zinc-600">Type</span>
+          <span className="text-[11px] font-medium text-black">Type</span>
           <select
             value={value.postType}
             onChange={(event) =>
@@ -136,7 +136,7 @@ function FiltersPanel({
                 postType: event.target.value as FiltersState["postType"],
               })
             }
-            className="h-9 w-full rounded-lg border border-zinc-200 bg-white px-3 text-sm outline-none focus:border-zinc-400"
+            className="h-8 w-full rounded-lg border border-zinc-200 bg-white px-2 text-sm outline-none focus:border-zinc-400"
           >
             {postTypeOptions.map((option) => (
               <option key={option} value={option}>
@@ -175,7 +175,7 @@ function FiltersPanel({
       <div className="flex items-center justify-between">
         <button
           type="button"
-          className="h-9 rounded-lg border border-zinc-200 bg-white px-3 text-sm"
+          className="h-8 rounded-lg border border-zinc-200 bg-white px-2 text-sm"
           onClick={() => setAdvancedOpen((open) => !open)}
         >
           {advancedOpen ? "Hide advanced" : "Advanced"}
@@ -183,7 +183,7 @@ function FiltersPanel({
 
         <button
           type="button"
-          className="h-9 rounded-lg border border-zinc-200 bg-white px-3 text-sm"
+          className="h-8 rounded-lg border border-zinc-200 bg-white px-2 text-sm"
           onClick={() => onChange(defaultFilters)}
         >
           Reset
@@ -192,9 +192,9 @@ function FiltersPanel({
 
       {!advancedOpen ? null : (
         <div className="rounded-xl border border-zinc-200 bg-white p-3">
-        <div className="flex items-center justify-between">
-          <div className="text-sm font-semibold">Radius</div>
-          <label className="flex items-center gap-2 text-xs text-zinc-700">
+          <div className="flex items-center justify-between">
+            <div className="text-sm font-semibold">Radius</div>
+            <label className="flex items-center gap-2 text-xs text-black">
             <input
               type="checkbox"
               checked={value.radius.enabled}
@@ -211,7 +211,7 @@ function FiltersPanel({
 
         <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
           <label className="flex flex-col gap-1">
-            <span className="text-[11px] font-medium text-zinc-600">
+            <span className="text-[11px] font-medium text-black">
               Miles: {value.radius.miles}
             </span>
             <input
@@ -234,7 +234,7 @@ function FiltersPanel({
           </label>
 
           <div className="flex flex-col gap-2">
-            <div className="text-[11px] font-medium text-zinc-600">Center</div>
+            <div className="text-[11px] font-medium text-black">Center</div>
             <button
               type="button"
               onClick={() =>
@@ -266,7 +266,7 @@ function FiltersPanel({
         <div className="mt-3 flex items-center justify-between gap-3">
           <button
             type="button"
-            className="h-9 rounded-lg border border-zinc-200 bg-white px-3 text-sm"
+            className="h-8 rounded-lg border border-zinc-200 bg-white px-2 text-sm"
             onClick={() =>
               onChange({
                 ...value,
@@ -282,7 +282,7 @@ function FiltersPanel({
             Clear radius
           </button>
         </div>
-        </div>
+      </div>
       )}
     </div>
   );
@@ -301,8 +301,8 @@ export default function FilterBar({
 
   return (
     <div className="pointer-events-none absolute left-0 top-0 z-20 w-full p-3">
-      <div className="mx-auto flex w-full max-w-5xl items-start justify-end gap-3">
-        <div className="pointer-events-auto hidden w-full rounded-2xl border border-zinc-200 bg-white/95 p-3 shadow md:block">
+      <div className="mx-auto flex w-full max-w-4xl items-start justify-end gap-3">
+        <div className="pointer-events-auto hidden w-[420px] rounded-2xl border border-zinc-200 bg-white/95 p-2 shadow md:block">
           <FiltersPanel value={value} onChange={onChange} options={options} />
         </div>
 
