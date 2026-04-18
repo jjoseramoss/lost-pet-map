@@ -1,8 +1,10 @@
 "use client";
 
 import "mapbox-gl/dist/mapbox-gl.css";
-import { useMemo, useState } from "react";
-import Map, { Marker, Popup } from "react-map-gl/mapbox";
+import Image from "next/image";
+import { useEffect, useMemo, useRef, useState } from "react";
+import Map, { type MapRef, Marker, Popup } from "react-map-gl/mapbox";
+import lostDogPhoto from "@/app/lostdog.png";
 
 type DemoPin = {
   id: string;
@@ -72,13 +74,19 @@ const mapConfig: { basemap: Record<string, string | boolean> } = {
 function PinIcon({ title }: { title: string }) {
   return (
     <div title={title} className="drop-shadow">
-      <svg width="36" height="36" viewBox="0 0 24 24" aria-hidden="true">
-        <path
-          d="M12 0C6.477 0 2 4.477 2 10c0 6.5 10 14 10 14s10-7.5 10-14C22 4.477 17.523 0 12 0z"
-          fill="#ef4444"
-        />
-        <circle cx="12" cy="10" r="6.2" fill="#ffffff" />
-      </svg>
+      <div className="relative flex h-14 w-14 flex-col items-center">
+        <div className="relative z-10 h-12 w-12 overflow-hidden rounded-full bg-white shadow-sm">
+          <Image
+            src={lostDogPhoto}
+            alt=""
+            fill
+            sizes="48px"
+            className="object-cover"
+            priority={false}
+          />
+        </div>
+        <div className="absolute top-10 h-0 w-0 border-l-[12px] border-r-[12px] border-t-[18px] border-l-transparent border-r-transparent border-t-red-500" />
+      </div>
     </div>
   );
 }
@@ -88,12 +96,47 @@ export default function MapView({
   initialViewState,
   interactive,
 }: MapViewProps) {
+  const mapRef = useRef<MapRef | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [zoom, setZoom] = useState(initialViewState.zoom);
 
   const selected = useMemo(
     () => demoPins.find((pin) => pin.id === selectedId) ?? null,
     [selectedId],
   );
+
+  useEffect(() => {
+    if (!interactive) return;
+    if (!selected) return;
+
+    mapRef.current?.flyTo({
+      center: [selected.lng, selected.lat],
+      zoom: Math.max(14, zoom),
+      duration: 800,
+    });
+  }, [interactive, selected, zoom]);
+
+  useEffect(() => {
+    const map = mapRef.current?.getMap();
+    if (!map) return;
+
+    const updateZoom = () => setZoom(map.getZoom());
+    const rafId = requestAnimationFrame(updateZoom);
+
+    map.on("zoom", updateZoom);
+    return () => {
+      cancelAnimationFrame(rafId);
+      map.off("zoom", updateZoom);
+    };
+  }, []);
+
+  const minZoom = 5;
+  const maxZoom = 18;
+  const minScale = 0.75;
+  const maxScale = 2.2;
+
+  const zoomT = Math.min(1, Math.max(0, (zoom - minZoom) / (maxZoom - minZoom)));
+  const scale = minScale + zoomT * (maxScale - minScale);
 
   return (
     <div
@@ -102,6 +145,7 @@ export default function MapView({
       }
     >
       <Map
+        ref={mapRef}
         mapboxAccessToken={mapboxToken}
         initialViewState={initialViewState}
         mapStyle="mapbox://styles/mapbox/standard"
@@ -119,10 +163,22 @@ export default function MapView({
             anchor="bottom"
             onClick={(event) => {
               event.originalEvent.stopPropagation();
+              if (zoom < 14) {
+                mapRef.current?.flyTo({
+                  center: [pin.lng, pin.lat],
+                  zoom: 14,
+                  duration: 800,
+                });
+              }
               setSelectedId(pin.id);
             }}
           >
-            <PinIcon title={pin.title} />
+            <div
+              className="origin-bottom"
+              style={{ transform: `scale(${scale})` }}
+            >
+              <PinIcon title={pin.title} />
+            </div>
           </Marker>
         ))}
 
@@ -149,4 +205,3 @@ export default function MapView({
     </div>
   );
 }
-
