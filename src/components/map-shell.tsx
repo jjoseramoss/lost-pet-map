@@ -1,46 +1,37 @@
 "use client";
 
-import "mapbox-gl/dist/mapbox-gl.css";
-import { useMemo, useState } from "react";
-import Map, { Marker, Popup } from "react-map-gl/mapbox";
-
-type DemoPin = {
-  id: string;
-  type: "lost" | "found";
-  title: string;
-  description: string;
-  lat: number;
-  lng: number;
-};
-
-const demoPins: DemoPin[] = [
-  {
-    id: "1",
-    type: "lost",
-    title: "Lost dog",
-    description: "Last seen near UTRGV (demo)",
-    lat: 26.3066,
-    lng: -98.1746,
-  },
-  {
-    id: "2",
-    type: "found",
-    title: "Found cat",
-    description: "Spotted near McAllen (demo)",
-    lat: 26.2034,
-    lng: -98.2300,
-  },
-];
+import { useEffect, useState } from "react";
+import IntroOverlay from "@/components/intro-overlay";
+import MapView from "@/components/map-view";
+import NavBar from "@/components/nav-bar";
 
 export default function MapShell() {
   const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+  const [showIntro, setShowIntro] = useState(true);
+  const [initialViewState, setInitialViewState] = useState({
+    longitude: -98.23,
+    latitude: 26.2,
+    zoom: 14, 
+    bearing: 0,
+    pitch: 0,
+  });
 
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  useEffect(() => {
+    if (!navigator.geolocation) return;
 
-  const selected = useMemo(
-    () => demoPins.find((pin) => pin.id === selectedId) ?? null,
-    [selectedId],
-  );
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setInitialViewState((current) => ({
+          ...current,
+          longitude: position.coords.longitude,
+          latitude: position.coords.latitude,
+          zoom: Math.max(current.zoom, 14),
+        }));
+      },
+      () => {},
+      { enableHighAccuracy: true, maximumAge: 60_000, timeout: 5_000 },
+    );
+  }, []);
 
   if (!mapboxToken) {
     return (
@@ -60,58 +51,15 @@ export default function MapShell() {
   }
 
   return (
-    <Map
-      mapboxAccessToken={mapboxToken}
-      initialViewState={{
-        longitude: -98.23,
-        latitude: 26.20,
-        zoom: 10,
-      }}
-      mapStyle="mapbox://styles/mapbox/streets-v12"
-      style={{ width: "100%", height: "100%" }}
-      onClick={() => setSelectedId(null)}
-    >
-      {demoPins.map((pin) => (
-        <Marker
-          key={pin.id}
-          longitude={pin.lng}
-          latitude={pin.lat}
-          anchor="bottom"
-          onClick={(event) => {
-            event.originalEvent.stopPropagation();
-            setSelectedId(pin.id);
-          }}
-        >
-          <div
-            className={
-              pin.type === "lost"
-                ? "h-3 w-3 rounded-full bg-red-600 ring-4 ring-red-200"
-                : "h-3 w-3 rounded-full bg-emerald-600 ring-4 ring-emerald-200"
-            }
-            title={pin.title}
-          />
-        </Marker>
-      ))}
+    <div className="relative h-full w-full">
+      <MapView
+        mapboxToken={mapboxToken}
+        initialViewState={initialViewState}
+        interactive={!showIntro}
+      />
 
-      {selected ? (
-        <Popup
-          longitude={selected.lng}
-          latitude={selected.lat}
-          anchor="top"
-          closeOnClick={false}
-          onClose={() => setSelectedId(null)}
-        >
-          <div className="min-w-56">
-            <div className="text-sm font-semibold">{selected.title}</div>
-            <div className="mt-1 text-xs text-zinc-700">
-              {selected.description}
-            </div>
-            <div className="mt-2 text-[11px] text-zinc-500">
-              Type: {selected.type}
-            </div>
-          </div>
-        </Popup>
-      ) : null}
-    </Map>
+      {showIntro ? <IntroOverlay onContinue={() => setShowIntro(false)} /> : null}
+      {!showIntro ? <NavBar /> : null}
+    </div>
   );
 }
