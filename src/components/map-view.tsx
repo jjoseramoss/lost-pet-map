@@ -3,11 +3,14 @@
 import "mapbox-gl/dist/mapbox-gl.css";
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
-import Map, { type MapRef, Marker, Popup } from "react-map-gl/mapbox";
+import Map, { Layer, type MapMouseEvent, type MapRef, Marker, Popup, Source } from "react-map-gl/mapbox";
 import lostDogPhoto from "@/app/lostdog.png";
 import { getPublicStorageUrl } from "@/lib/storage/public-url";
 import { listPosts, subscribeToPostChanges } from "@/lib/posts/queries";
 import type { PetPost } from "@/lib/posts/types";
+import type { FiltersState } from "@/components/filters/filter-bar";
+import { distanceMiles } from "@/lib/geo/distance";
+import { circlePolygonGeoJson } from "@/lib/geo/circle";
 
 const photoBucket = "pet-photos";
 
@@ -21,6 +24,8 @@ type MapViewProps = {
     pitch: number;
   };
   interactive: boolean;
+  filters: FiltersState;
+  onFiltersChange: (next: FiltersState) => void;
 };
 
 const mapConfig: { basemap: Record<string, string | boolean> } = {
@@ -72,6 +77,8 @@ export default function MapView({
   mapboxToken,
   initialViewState,
   interactive,
+  filters,
+  onFiltersChange,
 }: MapViewProps) {
   const mapRef = useRef<MapRef | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -83,6 +90,43 @@ export default function MapView({
     () => posts.find((pin) => pin.id === selectedId) ?? null,
     [posts, selectedId],
   );
+
+  const filteredPosts = useMemo(() => {
+    const breedQuery = filters.breed.trim().toLowerCase();
+    const colorQuery = filters.color.trim().toLowerCase();
+
+    return posts.filter((post) => {
+      if (!filters.postTypes.includes(post.post_type)) return false;
+
+      if (breedQuery) {
+        const value = (post.breed ?? "").toLowerCase();
+        if (!value.includes(breedQuery)) return false;
+      }
+
+      if (colorQuery) {
+        const value = (post.color ?? "").toLowerCase();
+        if (!value.includes(colorQuery)) return false;
+      }
+
+      if (filters.radius.enabled && filters.radius.center) {
+        const miles = distanceMiles(
+          { lat: filters.radius.center.lat, lng: filters.radius.center.lng },
+          { lat: post.lat, lng: post.lng },
+        );
+
+        if (miles > filters.radius.miles) return false;
+      }
+
+      return true;
+    });
+  }, [filters, posts]);
+
+  const radiusGeoJson = useMemo(() => {
+    if (!filters.radius.enabled) return null;
+    if (!filters.radius.center) return null;
+
+    return circlePolygonGeoJson(filters.radius.center, filters.radius.miles);
+  }, [filters.radius.center, filters.radius.enabled, filters.radius.miles]);
 
   useEffect(() => {
     let active = true;
@@ -169,7 +213,22 @@ export default function MapView({
         attributionControl={false}
         logoPosition="bottom-right"
         style={{ width: "100%", height: "100%" }}
-        onClick={() => setSelectedId(null)}
+        onClick={(event: MapMouseEvent) => {
+          if (filters.radius.picking) {
+            onFiltersChange({
+              ...filters,
+              radius: {
+                ...filters.radius,
+                enabled: true,
+                picking: false,
+                center: { lat: event.lngLat.lat, lng: event.lngLat.lng },
+              },
+            });
+            return;
+          }
+
+          setSelectedId(null);
+        }}
       >
         {loadError ? (
           <div className="absolute left-4 top-4 z-10 rounded-lg bg-white/90 px-3 py-2 text-xs text-red-700 shadow">
@@ -177,7 +236,28 @@ export default function MapView({
           </div>
         ) : null}
 
-        {posts.map((pin) => (
+        {radiusGeoJson ? (
+          <Source id="radius" type="geojson" data={radiusGeoJson}>
+            <Layer
+              id="radius-fill"
+              type="fill"
+              paint={{
+                "fill-color": "#f59e0b",
+                "fill-opacity": 0.12,
+              }}
+            />
+            <Layer
+              id="radius-line"
+              type="line"
+              paint={{
+                "line-color": "#f59e0b",
+                "line-width": 2,
+              }}
+            />
+          </Source>
+        ) : null}
+
+        {filteredPosts.map((pin) => (
           <Marker
             key={pin.id}
             longitude={pin.lng}
