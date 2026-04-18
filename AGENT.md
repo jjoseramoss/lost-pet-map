@@ -40,21 +40,22 @@ Server-side only (later):
 - `OPENAI_API_KEY`
 
 ## Data model (MVP)
-Single table: `pets_posts`
+Single table: `pet_posts`
 - `id` uuid
-- `type` enum/text: `lost | found | shelter`
+- `post_type` enum/text: `lost | found | shelter`
 - `lat` double, `lng` double
 - `description` text
 - `contact_name` text, `contact_phone` text nullable, `contact_email` text nullable
-- `photo_url` text
+- `photo_path` text
 - `source` text: `user | scrape`
 - `source_url` text nullable
 - `created_at` timestamptz
-- `image_embedding` json/float[] nullable
+
+Schema SQL is in `supabase.sql`.
 
 ## Supabase policies (MVP)
-- Public `SELECT` on `pets_posts`
-- Public `INSERT` on `pets_posts`
+- Public `SELECT` on `pet_posts`
+- Public `INSERT` on `pet_posts`
 - Storage bucket set to public (MVP only)
 
 ## Pages / UX

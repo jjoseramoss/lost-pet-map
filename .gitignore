@@ -20,6 +20,9 @@
 # production
 /build
 
+# supabase (keep SQL helper committed)
+.supabase
+
 # misc
 .DS_Store
 *.pem
