@@ -262,15 +262,15 @@ export default function MapView({
               id="radius-fill"
               type="fill"
               paint={{
-                "fill-color": "#60a5fa",
-                "fill-opacity": 0.12,
+                "fill-color": "#93c5fd",
+                "fill-opacity": 0.14,
               }}
             />
             <Layer
               id="radius-line"
               type="line"
               paint={{
-                "line-color": "#60a5fa",
+                "line-color": "#93c5fd",
                 "line-width": 2,
               }}
             />
@@ -279,7 +279,7 @@ export default function MapView({
 
         {radiusCenter ? (
           <Marker longitude={radiusCenter.lng} latitude={radiusCenter.lat} anchor="center">
-            <div className="h-4 w-4 rounded-full bg-blue-500 ring-4 ring-blue-200" />
+            <div className="h-4 w-4 rounded-full bg-blue-300 ring-4 ring-blue-100" />
           </Marker>
         ) : null}
 
