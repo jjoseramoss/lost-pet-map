@@ -2,6 +2,7 @@ import Image from "next/image";
 import { type FormEvent, useEffect, useMemo, useState } from "react";
 import logo from "@/app/projectLogo.png";
 import PanelShell from "@/components/panel-shell";
+import PhotoField from "@/components/report/photo-field";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { getPublicStorageUrl } from "@/lib/storage/public-url";
 import type { PostType, Species } from "@/lib/posts/types";
@@ -38,6 +39,8 @@ export default function ReportPanel({
   const [contactEmail, setContactEmail] = useState("");
   const [photo, setPhoto] = useState<File | null>(null);
   const [photoPreviewUrl, setPhotoPreviewUrl] = useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generateError, setGenerateError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [hasDeviceLocation, setHasDeviceLocation] = useState(false);
@@ -58,12 +61,42 @@ export default function ReportPanel({
     );
   }, [lat, lng, onLatChange, onLngChange]);
 
-  useEffect(() => {
-    if (!photoPreviewUrl) return;
-    return () => {
-      URL.revokeObjectURL(photoPreviewUrl);
-    };
-  }, [photoPreviewUrl]);
+  async function generateFromPhoto() {
+    if (!photo) return;
+    setGenerateError(null);
+    setIsGenerating(true);
+
+    try {
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result));
+        reader.onerror = () => reject(new Error("Failed to read image"));
+        reader.readAsDataURL(photo);
+      });
+
+      const response = await fetch("/api/ai/pet-attrs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageDataUrl: dataUrl }),
+      });
+
+      const payload = (await response.json()) as
+        | { species: Species; breed: string | null; color: string | null }
+        | { error: string };
+
+      if (!response.ok || "error" in payload) {
+        throw new Error("error" in payload ? payload.error : "AI request failed");
+      }
+
+      setSpecies(payload.species);
+      if (payload.breed) setBreed(payload.breed);
+      if (payload.color) setColor(payload.color);
+    } catch (error: unknown) {
+      setGenerateError(error instanceof Error ? error.message : "AI request failed");
+    } finally {
+      setIsGenerating(false);
+    }
+  }
 
   const parsedLat = Number(lat);
   const parsedLng = Number(lng);
@@ -198,6 +231,23 @@ export default function ReportPanel({
       </div>
 
       <form className="mt-6 grid grid-cols-1 gap-4" onSubmit={onSubmit}>
+        <PhotoField
+          value={photo}
+          previewUrl={photoPreviewUrl}
+          onChange={(file, previewUrl) => {
+            setPhoto(file);
+            setPhotoPreviewUrl(previewUrl);
+          }}
+          onGenerate={generateFromPhoto}
+          isGenerating={isGenerating}
+        />
+
+        {generateError ? (
+          <div className="rounded-xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-xs text-amber-100">
+            {generateError}
+          </div>
+        ) : null}
+
         <div className="grid grid-cols-1 gap-4">
           <label className="grid gap-2 text-sm">
             <div className="text-white/80">Post type</div>
@@ -325,35 +375,6 @@ export default function ReportPanel({
               value={contactEmail}
               onChange={(event) => setContactEmail(event.target.value)}
             />
-          </label>
-
-          <label className="grid gap-2 text-sm">
-            <div className="text-white/80">Photo image</div>
-            <label className="relative">
-              <input
-                type="file"
-                accept="image/*"
-                className="sr-only"
-                onChange={(event) => {
-                  const file = event.target.files?.[0] ?? null;
-                  setPhoto(file);
-                  setPhotoPreviewUrl(file ? URL.createObjectURL(file) : null);
-                }}
-              />
-              <span className="relative inline-flex h-28 w-full items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-white/5 px-4 text-sm font-medium text-white hover:bg-white/10">
-                {photoPreviewUrl ? (
-                  <Image
-                    src={photoPreviewUrl}
-                    alt=""
-                    fill
-                    sizes="(max-width: 768px) 100vw, 26rem"
-                    className="object-cover"
-                  />
-                ) : (
-                  "Choose file"
-                )}
-              </span>
-            </label>
           </label>
         </div>
 

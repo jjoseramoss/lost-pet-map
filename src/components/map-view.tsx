@@ -5,7 +5,6 @@ import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Map, {
   Layer,
-  type MapLayerMouseEvent,
   type MapMouseEvent,
   type MapRef,
   Marker,
@@ -251,7 +250,7 @@ export default function MapView({
         attributionControl={false}
         logoPosition="bottom-right"
         style={{ width: "100%", height: "100%" }}
-        onClick={(event: MapMouseEvent | MapLayerMouseEvent) => {
+        onClick={(event: MapMouseEvent) => {
           setSelectedId(null);
 
           if (!interactive) return;
