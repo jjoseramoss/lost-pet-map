@@ -59,12 +59,13 @@ function PinIcon({ title, photoUrl }: { title: string; photoUrl?: string }) {
   return (
     <div title={title} className="drop-shadow">
       <div className="relative flex h-14 w-14 flex-col items-center">
-        <div className="relative z-10 h-12 w-12 overflow-hidden rounded-full bg-white shadow-sm">
+        <div className="relative z-10 h-12 w-12 overflow-hidden rounded-full border-2 border-red-500 bg-white shadow-sm">
           <Image
             src={photoUrl ?? lostDogPhoto}
             alt=""
             fill
-            sizes="48px"
+            sizes="64px"
+            quality={90}
             className="object-cover"
             priority={false}
           />
