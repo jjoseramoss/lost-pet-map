@@ -262,15 +262,15 @@ export default function MapView({
               id="radius-fill"
               type="fill"
               paint={{
-                "fill-color": "#93c5fd",
-                "fill-opacity": 0.14,
+                "fill-color": "#89D4FF",
+                "fill-opacity": 0.18,
               }}
             />
             <Layer
               id="radius-line"
               type="line"
               paint={{
-                "line-color": "#93c5fd",
+                "line-color": "#89D4FF",
                 "line-width": 2,
               }}
             />
