@@ -11,6 +11,14 @@ import FiltersPanel, { defaultFilters, type FiltersState } from "@/components/fi
 import PetProfilePanel from "@/components/pet-profile-panel";
 import type { PetPost } from "@/lib/posts/types";
 
+const fallbackViewState = {
+  longitude: -98.23,
+  latitude: 26.2,
+  zoom: 14,
+  bearing: 0,
+  pitch: 0,
+};
+
 export default function MapShell() {
   const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
   const [showIntro, setShowIntro] = useState(true);
@@ -24,30 +32,31 @@ export default function MapShell() {
   const [isPickingLocation, setIsPickingLocation] = useState(false);
   const [reportLat, setReportLat] = useState("");
   const [reportLng, setReportLng] = useState("");
-  const [initialViewState, setInitialViewState] = useState({
-    longitude: -98.23,
-    latitude: 26.2,
-    zoom: 14, 
-    bearing: 0,
-    pitch: 0,
+  const [initialViewState, setInitialViewState] = useState<
+    typeof fallbackViewState | null
+  >(() => {
+    if (typeof window === "undefined") return fallbackViewState;
+    return navigator.geolocation ? null : fallbackViewState;
   });
 
   useEffect(() => {
+    if (initialViewState) return;
     if (!navigator.geolocation) return;
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        setInitialViewState((current) => ({
-          ...current,
+        setInitialViewState({
+          ...fallbackViewState,
           longitude: position.coords.longitude,
           latitude: position.coords.latitude,
-          zoom: Math.max(current.zoom, 14),
-        }));
+        });
       },
-      () => {},
-      { enableHighAccuracy: true, maximumAge: 60_000, timeout: 5_000 },
+      () => {
+        setInitialViewState(fallbackViewState);
+      },
+      { enableHighAccuracy: true, maximumAge: 60_000, timeout: 7_000 },
     );
-  }, []);
+  }, [initialViewState]);
 
   if (!mapboxToken) {
     return (
@@ -68,25 +77,29 @@ export default function MapShell() {
 
   return (
     <div className="relative h-full w-full">
-      <MapView
-        mapboxToken={mapboxToken}
-        initialViewState={initialViewState}
-        interactive={!showIntro && (!activePanel || isPickingLocation)}
-        filters={filters}
-        onFiltersChange={setFilters}
-        onFilterOptionsChange={setFilterOptions}
-        onSelectPost={setSelectedPost}
-        showPins={!isPickingLocation}
-        onPickLocation={
-          isPickingLocation
-            ? (coords) => {
-                setReportLat(String(coords.lat));
-                setReportLng(String(coords.lng));
-                setIsPickingLocation(false);
-              }
-            : undefined
-        }
-      />
+      {initialViewState ? (
+        <MapView
+          mapboxToken={mapboxToken}
+          initialViewState={initialViewState}
+          interactive={!showIntro && (!activePanel || isPickingLocation)}
+          filters={filters}
+          onFiltersChange={setFilters}
+          onFilterOptionsChange={setFilterOptions}
+          onSelectPost={setSelectedPost}
+          showPins={!isPickingLocation}
+          onPickLocation={
+            isPickingLocation
+              ? (coords) => {
+                  setReportLat(String(coords.lat));
+                  setReportLng(String(coords.lng));
+                  setIsPickingLocation(false);
+                }
+              : undefined
+          }
+        />
+      ) : (
+        <div className="h-full w-full bg-[var(--map-bg)]" />
+      )}
 
       {!showIntro ? <AppTitle /> : null}
 
