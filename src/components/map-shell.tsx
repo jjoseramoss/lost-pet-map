@@ -21,6 +21,9 @@ export default function MapShell() {
     breeds: string[];
     colors: string[];
   });
+  const [isPickingLocation, setIsPickingLocation] = useState(false);
+  const [reportLat, setReportLat] = useState("");
+  const [reportLng, setReportLng] = useState("");
   const [initialViewState, setInitialViewState] = useState({
     longitude: -98.23,
     latitude: 26.2,
@@ -68,11 +71,21 @@ export default function MapShell() {
       <MapView
         mapboxToken={mapboxToken}
         initialViewState={initialViewState}
-        interactive={!showIntro && !activePanel}
+        interactive={!showIntro && (!activePanel || isPickingLocation)}
         filters={filters}
         onFiltersChange={setFilters}
         onFilterOptionsChange={setFilterOptions}
         onSelectPost={setSelectedPost}
+        showPins={!isPickingLocation}
+        onPickLocation={
+          isPickingLocation
+            ? (coords) => {
+                setReportLat(String(coords.lat));
+                setReportLng(String(coords.lng));
+                setIsPickingLocation(false);
+              }
+            : undefined
+        }
       />
 
       {!showIntro ? <AppTitle /> : null}
@@ -87,17 +100,31 @@ export default function MapShell() {
 
       {showIntro ? <IntroOverlay onContinue={() => setShowIntro(false)} /> : null}
       {activePanel === "report" ? (
-        <ReportPanel onClose={() => setActivePanel(null)} />
+        <ReportPanel
+          onClose={() => {
+            setActivePanel(null);
+            setIsPickingLocation(false);
+          }}
+          lat={reportLat}
+          lng={reportLng}
+          onLatChange={setReportLat}
+          onLngChange={setReportLng}
+          onStartPickLocation={() => {
+            setIsPickingLocation(true);
+          }}
+          hidden={isPickingLocation}
+        />
       ) : null}
       {activePanel === "about" ? (
         <AboutPanel onClose={() => setActivePanel(null)} />
       ) : null}
       {!showIntro ? (
         <NavBar
-          panelOpen={Boolean(activePanel)}
+          panelOpen={Boolean(activePanel) && !isPickingLocation}
           onSelect={(id) => {
             if (id === "map") {
               setActivePanel(null);
+              setIsPickingLocation(false);
               return;
             }
             setActivePanel(id);

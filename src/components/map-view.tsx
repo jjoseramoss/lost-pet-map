@@ -3,7 +3,14 @@
 import "mapbox-gl/dist/mapbox-gl.css";
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
-import Map, { Layer, type MapMouseEvent, type MapRef, Marker, Source } from "react-map-gl/mapbox";
+import Map, {
+  Layer,
+  type MapLayerMouseEvent,
+  type MapMouseEvent,
+  type MapRef,
+  Marker,
+  Source,
+} from "react-map-gl/mapbox";
 import lostDogPhoto from "@/app/lostdog.png";
 import { getPublicStorageUrl } from "@/lib/storage/public-url";
 import { listPosts, subscribeToPostChanges } from "@/lib/posts/queries";
@@ -28,6 +35,8 @@ type MapViewProps = {
   onFiltersChange: (next: FiltersState) => void;
   onFilterOptionsChange: (next: { breeds: string[]; colors: string[] }) => void;
   onSelectPost: (post: PetPost | null) => void;
+  showPins?: boolean;
+  onPickLocation?: (coords: { lat: number; lng: number }) => void;
 };
 
 const mapConfig: { basemap: Record<string, string | boolean> } = {
@@ -84,6 +93,8 @@ export default function MapView({
   onFiltersChange,
   onFilterOptionsChange,
   onSelectPost,
+  showPins = true,
+  onPickLocation,
 }: MapViewProps) {
   const mapRef = useRef<MapRef | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -240,7 +251,16 @@ export default function MapView({
         attributionControl={false}
         logoPosition="bottom-right"
         style={{ width: "100%", height: "100%" }}
-        onClick={(event: MapMouseEvent) => {
+        onClick={(event: MapMouseEvent | MapLayerMouseEvent) => {
+          setSelectedId(null);
+
+          if (!interactive) return;
+
+          if (onPickLocation) {
+            onPickLocation({ lat: event.lngLat.lat, lng: event.lngLat.lng });
+            return;
+          }
+
           if (filters.radius.picking) {
             onFiltersChange({
               ...filters,
@@ -251,10 +271,7 @@ export default function MapView({
                 center: { lat: event.lngLat.lat, lng: event.lngLat.lng },
               },
             });
-            return;
           }
-
-          setSelectedId(null);
         }}
       >
         {loadError ? (
@@ -263,7 +280,7 @@ export default function MapView({
           </div>
         ) : null}
 
-        {radiusGeoJson ? (
+        {showPins && radiusGeoJson ? (
           <Source id="radius" type="geojson" data={radiusGeoJson}>
             <Layer
               id="radius-fill"
@@ -284,42 +301,43 @@ export default function MapView({
           </Source>
         ) : null}
 
-        {radiusCenter ? (
+        {showPins && radiusCenter ? (
           <Marker longitude={radiusCenter.lng} latitude={radiusCenter.lat} anchor="center">
             <div className="h-4 w-4 rounded-full bg-blue-300 ring-4 ring-blue-100" />
           </Marker>
         ) : null}
 
-        {filteredPosts.map((pin) => (
-          <Marker
-            key={pin.id}
-            longitude={pin.lng}
-            latitude={pin.lat}
-            anchor="bottom"
-            onClick={(event) => {
-              event.originalEvent.stopPropagation();
-              if (zoom < 14) {
-                mapRef.current?.flyTo({
-                  center: [pin.lng, pin.lat],
-                  zoom: 14,
-                  duration: 800,
-                });
-              }
-              setSelectedId(pin.id);
-            }}
-          >
-            <div
-              className="origin-bottom"
-              style={{ transform: `scale(${scale})` }}
-            >
-              <PinIcon
-                title={pin.pet_name ?? `${pin.post_type} ${pin.species}`}
-                photoUrl={getPublicStorageUrl(photoBucket, pin.photo_path)}
-              />
-            </div>
-          </Marker>
-        ))}
-
+        {showPins
+          ? filteredPosts.map((pin) => (
+              <Marker
+                key={pin.id}
+                longitude={pin.lng}
+                latitude={pin.lat}
+                anchor="bottom"
+                onClick={(event) => {
+                  event.originalEvent.stopPropagation();
+                  if (zoom < 14) {
+                    mapRef.current?.flyTo({
+                      center: [pin.lng, pin.lat],
+                      zoom: 14,
+                      duration: 800,
+                    });
+                  }
+                  setSelectedId(pin.id);
+                }}
+              >
+                <div
+                  className="origin-bottom"
+                  style={{ transform: `scale(${scale})` }}
+                >
+                  <PinIcon
+                    title={pin.pet_name ?? `${pin.post_type} ${pin.species}`}
+                    photoUrl={getPublicStorageUrl(photoBucket, pin.photo_path)}
+                  />
+                </div>
+              </Marker>
+            ))
+          : null}
       </Map>
     </div>
   );
