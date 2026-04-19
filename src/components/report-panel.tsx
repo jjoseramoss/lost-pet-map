@@ -8,19 +8,31 @@ import type { PostType, Species } from "@/lib/posts/types";
 
 type ReportPanelProps = {
   onClose: () => void;
+  lat: string;
+  lng: string;
+  onLatChange: (value: string) => void;
+  onLngChange: (value: string) => void;
+  onStartPickLocation: () => void;
+  hidden?: boolean;
 };
 
 const photoBucket = "pet-photos";
 
-export default function ReportPanel({ onClose }: ReportPanelProps) {
+export default function ReportPanel({
+  onClose,
+  lat,
+  lng,
+  onLatChange,
+  onLngChange,
+  onStartPickLocation,
+  hidden,
+}: ReportPanelProps) {
   const [species, setSpecies] = useState<Species>("dog");
   const [postType, setPostType] = useState<PostType>("lost");
   const [petName, setPetName] = useState("");
   const [breed, setBreed] = useState("");
   const [color, setColor] = useState("");
   const [description, setDescription] = useState("");
-  const [lat, setLat] = useState("");
-  const [lng, setLng] = useState("");
   const [contactName, setContactName] = useState("");
   const [contactPhone, setContactPhone] = useState("");
   const [contactEmail, setContactEmail] = useState("");
@@ -36,15 +48,15 @@ export default function ReportPanel({ onClose }: ReportPanelProps) {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         setHasDeviceLocation(true);
-        setLat((current) => current || String(position.coords.latitude));
-        setLng((current) => current || String(position.coords.longitude));
+        onLatChange(lat || String(position.coords.latitude));
+        onLngChange(lng || String(position.coords.longitude));
       },
       () => {
         setHasDeviceLocation(false);
       },
       { enableHighAccuracy: true, maximumAge: 60_000, timeout: 5_000 },
     );
-  }, []);
+  }, [lat, lng, onLatChange, onLngChange]);
 
   useEffect(() => {
     if (!photoPreviewUrl) return;
@@ -177,7 +189,7 @@ export default function ReportPanel({ onClose }: ReportPanelProps) {
   }
 
   return (
-    <PanelShell title="Report" onClose={onClose}>
+    <PanelShell title="Report" onClose={onClose} hidden={hidden}>
       <div className="flex items-center gap-3">
         <div className="relative h-10 w-10 overflow-hidden rounded-lg bg-white/5">
           <Image src={logo} alt="" fill sizes="40px" className="object-contain" />
@@ -261,7 +273,7 @@ export default function ReportPanel({ onClose }: ReportPanelProps) {
               inputMode="decimal"
               className="h-11 w-full rounded-xl border border-white/10 bg-white/5 px-4 text-sm text-white focus:outline-none"
               value={lat}
-              onChange={(event) => setLat(event.target.value)}
+              onChange={(event) => onLatChange(event.target.value)}
             />
           </label>
           <label className="grid gap-2 text-sm">
@@ -270,10 +282,18 @@ export default function ReportPanel({ onClose }: ReportPanelProps) {
               inputMode="decimal"
               className="h-11 w-full rounded-xl border border-white/10 bg-white/5 px-4 text-sm text-white focus:outline-none"
               value={lng}
-              onChange={(event) => setLng(event.target.value)}
+              onChange={(event) => onLngChange(event.target.value)}
             />
           </label>
         </div>
+
+        <button
+          type="button"
+          className="inline-flex h-11 w-full items-center justify-center rounded-xl border border-white/10 bg-white/5 text-sm font-medium text-white hover:bg-white/10"
+          onClick={onStartPickLocation}
+        >
+          Pick location on map
+        </button>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <label className="grid gap-2 text-sm">

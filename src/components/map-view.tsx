@@ -3,7 +3,12 @@
 import "mapbox-gl/dist/mapbox-gl.css";
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
-import Map, { type MapRef, Marker, Popup } from "react-map-gl/mapbox";
+import Map, {
+  type MapLayerMouseEvent,
+  type MapRef,
+  Marker,
+  Popup,
+} from "react-map-gl/mapbox";
 import lostDogPhoto from "@/app/lostdog.png";
 import { getPublicStorageUrl } from "@/lib/storage/public-url";
 import { listPosts, subscribeToPostChanges } from "@/lib/posts/queries";
@@ -21,6 +26,8 @@ type MapViewProps = {
     pitch: number;
   };
   interactive: boolean;
+  showPins?: boolean;
+  onPickLocation?: (coords: { lat: number; lng: number }) => void;
 };
 
 const mapConfig: { basemap: Record<string, string | boolean> } = {
@@ -72,6 +79,8 @@ export default function MapView({
   mapboxToken,
   initialViewState,
   interactive,
+  showPins = true,
+  onPickLocation,
 }: MapViewProps) {
   const mapRef = useRef<MapRef | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -169,7 +178,12 @@ export default function MapView({
         attributionControl={false}
         logoPosition="bottom-right"
         style={{ width: "100%", height: "100%" }}
-        onClick={() => setSelectedId(null)}
+        onClick={(event: MapLayerMouseEvent) => {
+          setSelectedId(null);
+          if (!interactive) return;
+          if (!onPickLocation) return;
+          onPickLocation({ lat: event.lngLat.lat, lng: event.lngLat.lng });
+        }}
       >
         {loadError ? (
           <div className="absolute left-4 top-4 z-10 rounded-lg bg-white/90 px-3 py-2 text-xs text-red-700 shadow">
@@ -177,37 +191,39 @@ export default function MapView({
           </div>
         ) : null}
 
-        {posts.map((pin) => (
-          <Marker
-            key={pin.id}
-            longitude={pin.lng}
-            latitude={pin.lat}
-            anchor="bottom"
-            onClick={(event) => {
-              event.originalEvent.stopPropagation();
-              if (zoom < 14) {
-                mapRef.current?.flyTo({
-                  center: [pin.lng, pin.lat],
-                  zoom: 14,
-                  duration: 800,
-                });
-              }
-              setSelectedId(pin.id);
-            }}
-          >
-            <div
-              className="origin-bottom"
-              style={{ transform: `scale(${scale})` }}
-            >
-              <PinIcon
-                title={pin.pet_name ?? `${pin.post_type} ${pin.species}`}
-                photoUrl={getPublicStorageUrl(photoBucket, pin.photo_path)}
-              />
-            </div>
-          </Marker>
-        ))}
+        {showPins
+          ? posts.map((pin) => (
+              <Marker
+                key={pin.id}
+                longitude={pin.lng}
+                latitude={pin.lat}
+                anchor="bottom"
+                onClick={(event) => {
+                  event.originalEvent.stopPropagation();
+                  if (zoom < 14) {
+                    mapRef.current?.flyTo({
+                      center: [pin.lng, pin.lat],
+                      zoom: 14,
+                      duration: 800,
+                    });
+                  }
+                  setSelectedId(pin.id);
+                }}
+              >
+                <div
+                  className="origin-bottom"
+                  style={{ transform: `scale(${scale})` }}
+                >
+                  <PinIcon
+                    title={pin.pet_name ?? `${pin.post_type} ${pin.species}`}
+                    photoUrl={getPublicStorageUrl(photoBucket, pin.photo_path)}
+                  />
+                </div>
+              </Marker>
+            ))
+          : null}
 
-        {selected ? (
+        {showPins && selected ? (
           <Popup
             longitude={selected.lng}
             latitude={selected.lat}
