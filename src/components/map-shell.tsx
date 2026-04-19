@@ -8,12 +8,15 @@ import AboutPanel from "@/components/about-panel";
 import ReportPanel from "@/components/report-panel";
 import NavBar, { type NavItemId } from "@/components/nav-bar";
 import FilterBar, { defaultFilters, type FiltersState } from "@/components/filters/filter-bar";
+import PetProfilePanel from "@/components/pet-profile-panel";
+import type { PetPost } from "@/lib/posts/types";
 
 export default function MapShell() {
   const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
   const [showIntro, setShowIntro] = useState(true);
   const [activePanel, setActivePanel] = useState<Exclude<NavItemId, "map"> | null>(null);
   const [filters, setFilters] = useState<FiltersState>(defaultFilters);
+  const [selectedPost, setSelectedPost] = useState<PetPost | null>(null);
   const [filterOptions, setFilterOptions] = useState({ breeds: [], colors: [] } as {
     breeds: string[];
     colors: string[];
@@ -69,12 +72,17 @@ export default function MapShell() {
         filters={filters}
         onFiltersChange={setFilters}
         onFilterOptionsChange={setFilterOptions}
+        onSelectPost={setSelectedPost}
       />
 
       {!showIntro ? <AppTitle /> : null}
 
-      {!showIntro && !activePanel ? (
+      {!showIntro && !activePanel && !selectedPost ? (
         <FilterBar value={filters} onChange={setFilters} options={filterOptions} />
+      ) : null}
+
+      {selectedPost ? (
+        <PetProfilePanel post={selectedPost} onClose={() => setSelectedPost(null)} />
       ) : null}
 
       {showIntro ? <IntroOverlay onContinue={() => setShowIntro(false)} /> : null}

@@ -1,0 +1,107 @@
+"use client";
+
+import Image from "next/image";
+import type { PetPost } from "@/lib/posts/types";
+import { getPublicStorageUrl } from "@/lib/storage/public-url";
+
+function Pill({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="inline-flex items-center rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-semibold text-zinc-900">
+      {children}
+    </div>
+  );
+}
+
+function Field({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="grid grid-cols-3 gap-3 py-2">
+      <div className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+        {label}
+      </div>
+      <div className="col-span-2 text-sm text-zinc-900">{value}</div>
+    </div>
+  );
+}
+
+export default function PetProfilePanel({
+  post,
+  onClose,
+}: {
+  post: PetPost;
+  onClose: () => void;
+}) {
+  const photoUrl = getPublicStorageUrl("pet-photos", post.photo_path);
+
+  const body = (
+    <div className="w-full bg-white text-black">
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-zinc-100">
+        <Image
+          src={photoUrl}
+          alt="Pet photo"
+          fill
+          className="object-cover"
+          sizes="(max-width: 768px) 100vw, 420px"
+        />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 via-black/0 to-black/0" />
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/95 text-black shadow"
+          aria-label="Close"
+        >
+          ×
+        </button>
+      </div>
+
+      <div className="p-4">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <div className="text-lg font-semibold text-zinc-900">
+              {post.pet_name ?? "Unknown pet"}
+            </div>
+            <div className="mt-1 flex flex-wrap items-center gap-2">
+              <Pill>{post.post_type.toUpperCase()}</Pill>
+              <Pill>{post.species}</Pill>
+              <Pill>{post.status}</Pill>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-4 rounded-2xl border border-zinc-200 bg-white p-3">
+          <Field label="Breed" value={post.breed ?? "Unknown"} />
+          <Field label="Color" value={post.color ?? "Unknown"} />
+        </div>
+
+        <div className="mt-3 rounded-2xl border border-zinc-200 bg-white p-3">
+          <Field label="Details" value={post.description ?? "—"} />
+        </div>
+
+        <div className="mt-3 rounded-2xl border border-zinc-200 bg-white p-3">
+          <Field
+            label="Contact"
+            value={
+              [post.contact_name, post.contact_phone, post.contact_email]
+                .filter(Boolean)
+                .join(" • ") || "—"
+            }
+          />
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <>
+      <div className="hidden md:fixed md:inset-y-0 md:right-0 md:z-30 md:block md:w-[420px] md:border-l md:border-zinc-200 md:bg-white md:shadow-xl">
+        <div className="h-full overflow-auto">{body}</div>
+      </div>
+
+      <div className="md:hidden">
+        <div className="fixed inset-0 z-30 bg-black/40" onClick={onClose} />
+        <div className="fixed bottom-0 left-0 right-0 z-40 max-h-[85vh] overflow-auto rounded-t-3xl bg-white shadow-xl">
+          {body}
+        </div>
+      </div>
+    </>
+  );
+}

@@ -3,7 +3,7 @@
 import "mapbox-gl/dist/mapbox-gl.css";
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
-import Map, { Layer, type MapMouseEvent, type MapRef, Marker, Popup, Source } from "react-map-gl/mapbox";
+import Map, { Layer, type MapMouseEvent, type MapRef, Marker, Source } from "react-map-gl/mapbox";
 import lostDogPhoto from "@/app/lostdog.png";
 import { getPublicStorageUrl } from "@/lib/storage/public-url";
 import { listPosts, subscribeToPostChanges } from "@/lib/posts/queries";
@@ -27,6 +27,7 @@ type MapViewProps = {
   filters: FiltersState;
   onFiltersChange: (next: FiltersState) => void;
   onFilterOptionsChange: (next: { breeds: string[]; colors: string[] }) => void;
+  onSelectPost: (post: PetPost | null) => void;
 };
 
 const mapConfig: { basemap: Record<string, string | boolean> } = {
@@ -58,12 +59,13 @@ function PinIcon({ title, photoUrl }: { title: string; photoUrl?: string }) {
   return (
     <div title={title} className="drop-shadow">
       <div className="relative flex h-14 w-14 flex-col items-center">
-        <div className="relative z-10 h-12 w-12 overflow-hidden rounded-full bg-white shadow-sm">
+        <div className="relative z-10 h-12 w-12 overflow-hidden rounded-full border-2 border-red-500 bg-white shadow-sm">
           <Image
             src={photoUrl ?? lostDogPhoto}
             alt=""
             fill
-            sizes="48px"
+            sizes="64px"
+            quality={90}
             className="object-cover"
             priority={false}
           />
@@ -81,6 +83,7 @@ export default function MapView({
   filters,
   onFiltersChange,
   onFilterOptionsChange,
+  onSelectPost,
 }: MapViewProps) {
   const mapRef = useRef<MapRef | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -92,6 +95,10 @@ export default function MapView({
     () => posts.find((pin) => pin.id === selectedId) ?? null,
     [posts, selectedId],
   );
+
+  useEffect(() => {
+    onSelectPost(selected);
+  }, [onSelectPost, selected]);
 
   const filteredPosts = useMemo(() => {
     const breedQuery = filters.breed.trim().toLowerCase();
@@ -313,27 +320,6 @@ export default function MapView({
           </Marker>
         ))}
 
-        {selected ? (
-          <Popup
-            longitude={selected.lng}
-            latitude={selected.lat}
-            anchor="top"
-            closeOnClick={false}
-            onClose={() => setSelectedId(null)}
-          >
-            <div className="min-w-56">
-              <div className="text-sm font-semibold">
-                {selected.pet_name ?? "Unknown"}
-              </div>
-              <div className="mt-1 text-xs text-zinc-700">
-                {selected.description ?? "No description"}
-              </div>
-              <div className="mt-2 text-[11px] text-zinc-500">
-                Type: {selected.post_type}
-              </div>
-            </div>
-          </Popup>
-        ) : null}
       </Map>
     </div>
   );
