@@ -1,5 +1,3 @@
-import Image from "next/image";
-import logo from "@/app/logo-transparent.png";
 import PanelShell from "@/components/panel-shell";
 
 type AboutPanelProps = {
@@ -9,19 +7,6 @@ type AboutPanelProps = {
 export default function AboutPanel({ onClose }: AboutPanelProps) {
   return (
     <PanelShell title="About" onClose={onClose}>
-      <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white p-1 ring-1 ring-white/15">
-          <Image
-            src={logo}
-            alt="Pet Scout logo"
-            width={32}
-            height={32}
-            className="h-8 w-8 object-contain"
-          />
-        </div>
-        <div className="text-sm font-semibold text-zinc-900">Pet Scout</div>
-      </div>
-
       <div className="mt-5 space-y-3 text-sm text-zinc-700">
         <div>
           Pet Scout is a community-powered map for lost pets and stray sightings.

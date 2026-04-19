@@ -26,6 +26,19 @@ const postTypeOptions: Array<FiltersState["postType"]> = [
   "shelter",
 ];
 
+function postTypeActiveClass(option: FiltersState["postType"]) {
+  switch (option) {
+    case "lost":
+      return "bg-red-500 text-white";
+    case "found":
+      return "bg-emerald-500 text-white";
+    case "shelter":
+      return "bg-sky-500 text-white";
+    default:
+      return "bg-white text-zinc-900";
+  }
+}
+
 export const defaultFilters: FiltersState = {
   postType: "all",
   breed: "",
@@ -131,7 +144,7 @@ function FiltersPanelBody({
                 onClick={() => onChange({ ...value, postType: option })}
                 className={
                   value.postType === option
-                    ? "h-9 rounded-lg bg-white text-sm font-semibold text-zinc-900 shadow"
+                    ? `h-9 rounded-lg text-sm font-semibold shadow ${postTypeActiveClass(option)}`
                     : "h-9 rounded-lg text-sm font-semibold text-zinc-700 hover:bg-white/70"
                 }
               >

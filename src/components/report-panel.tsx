@@ -1,6 +1,4 @@
-import Image from "next/image";
 import { type FormEvent, useEffect, useMemo, useState } from "react";
-import logo from "@/app/logo-transparent.png";
 import PanelShell from "@/components/panel-shell";
 import PhotoField from "@/components/report/photo-field";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
@@ -223,13 +221,6 @@ export default function ReportPanel({
 
   return (
     <PanelShell title="Report" onClose={onClose} hidden={hidden}>
-      <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white p-1 ring-1 ring-white/15">
-          <Image src={logo} alt="Pet Scout logo" width={32} height={32} className="h-8 w-8 object-contain" />
-        </div>
-        <div className="text-sm font-semibold text-zinc-900">Pet Scout</div>
-      </div>
-
       <form className="mt-6 grid grid-cols-1 gap-4" onSubmit={onSubmit}>
         <PhotoField
           value={photo}
@@ -252,7 +243,7 @@ export default function ReportPanel({
           <label className="grid gap-2 text-sm">
             <div className="text-zinc-800">Post type</div>
             <select
-              className="h-11 w-full rounded-2xl border border-zinc-200 bg-white px-4 text-sm text-zinc-900 shadow-sm focus:outline-none"
+              className="h-11 w-full rounded-2xl border border-zinc-200 bg-sky-50 px-4 text-sm text-zinc-900 shadow-sm focus:outline-none"
               value={postType}
               onChange={(event) => setPostType(event.target.value as PostType)}
             >
@@ -267,7 +258,7 @@ export default function ReportPanel({
           <label className="grid gap-2 text-sm">
             <div className="text-zinc-800">Pet name</div>
             <input
-              className="h-11 w-full rounded-2xl border border-zinc-200 bg-white px-4 text-sm text-zinc-900 shadow-sm focus:outline-none"
+              className="h-11 w-full rounded-2xl border border-zinc-200 bg-sky-50 px-4 text-sm text-zinc-900 shadow-sm focus:outline-none"
               value={petName}
               onChange={(event) => setPetName(event.target.value)}
             />
@@ -276,7 +267,7 @@ export default function ReportPanel({
           <label className="grid gap-2 text-sm">
             <div className="text-zinc-800">Species</div>
             <select
-              className="h-11 w-full rounded-2xl border border-zinc-200 bg-white px-4 text-sm text-zinc-900 shadow-sm focus:outline-none"
+              className="h-11 w-full rounded-2xl border border-zinc-200 bg-sky-50 px-4 text-sm text-zinc-900 shadow-sm focus:outline-none"
               value={species}
               onChange={(event) => setSpecies(event.target.value as Species)}
             >
@@ -291,7 +282,7 @@ export default function ReportPanel({
           <label className="grid gap-2 text-sm">
             <div className="text-zinc-800">Breed</div>
             <input
-              className="h-11 w-full rounded-2xl border border-zinc-200 bg-white px-4 text-sm text-zinc-900 shadow-sm focus:outline-none"
+              className="h-11 w-full rounded-2xl border border-zinc-200 bg-sky-50 px-4 text-sm text-zinc-900 shadow-sm focus:outline-none"
               value={breed}
               onChange={(event) => setBreed(event.target.value)}
             />
@@ -300,7 +291,7 @@ export default function ReportPanel({
           <label className="grid gap-2 text-sm">
             <div className="text-zinc-800">Color</div>
             <input
-              className="h-11 w-full rounded-2xl border border-zinc-200 bg-white px-4 text-sm text-zinc-900 shadow-sm focus:outline-none"
+              className="h-11 w-full rounded-2xl border border-zinc-200 bg-sky-50 px-4 text-sm text-zinc-900 shadow-sm focus:outline-none"
               value={color}
               onChange={(event) => setColor(event.target.value)}
             />
@@ -310,7 +301,7 @@ export default function ReportPanel({
         <label className="grid gap-2 text-sm">
           <div className="text-zinc-800">Description</div>
           <textarea
-            className="min-h-24 w-full resize-none rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-900 shadow-sm focus:outline-none"
+            className="min-h-24 w-full resize-none rounded-2xl border border-zinc-200 bg-sky-50 px-4 py-3 text-sm text-zinc-900 shadow-sm focus:outline-none"
             value={description}
             onChange={(event) => setDescription(event.target.value)}
           />
@@ -321,7 +312,7 @@ export default function ReportPanel({
             <div className="text-zinc-800">Lat</div>
             <input
               inputMode="decimal"
-              className="h-11 w-full rounded-2xl border border-zinc-200 bg-white px-4 text-sm text-zinc-900 shadow-sm focus:outline-none"
+              className="h-11 w-full rounded-2xl border border-zinc-200 bg-sky-50 px-4 text-sm text-zinc-900 shadow-sm focus:outline-none"
               value={lat}
               onChange={(event) => onLatChange(event.target.value)}
             />
@@ -330,7 +321,7 @@ export default function ReportPanel({
             <div className="text-zinc-800">Lng</div>
             <input
               inputMode="decimal"
-              className="h-11 w-full rounded-2xl border border-zinc-200 bg-white px-4 text-sm text-zinc-900 shadow-sm focus:outline-none"
+              className="h-11 w-full rounded-2xl border border-zinc-200 bg-sky-50 px-4 text-sm text-zinc-900 shadow-sm focus:outline-none"
               value={lng}
               onChange={(event) => onLngChange(event.target.value)}
             />
@@ -339,7 +330,7 @@ export default function ReportPanel({
 
         <button
           type="button"
-          className="inline-flex h-11 w-full items-center justify-center rounded-2xl border border-zinc-200 bg-white text-sm font-semibold text-zinc-900 shadow-sm"
+          className="inline-flex h-11 w-full items-center justify-center rounded-2xl border border-zinc-200 bg-sky-50 text-sm font-semibold text-zinc-900 shadow-sm"
           onClick={onStartPickLocation}
         >
           Pick location on map
@@ -349,7 +340,7 @@ export default function ReportPanel({
           <label className="grid gap-2 text-sm">
             <div className="text-zinc-800">Contact name</div>
             <input
-              className="h-11 w-full rounded-2xl border border-zinc-200 bg-white px-4 text-sm text-zinc-900 shadow-sm focus:outline-none"
+              className="h-11 w-full rounded-2xl border border-zinc-200 bg-sky-50 px-4 text-sm text-zinc-900 shadow-sm focus:outline-none"
               value={contactName}
               onChange={(event) => setContactName(event.target.value)}
             />
@@ -359,19 +350,19 @@ export default function ReportPanel({
             <div className="text-zinc-800">Contact phone</div>
             <input
               inputMode="tel"
-              className="h-11 w-full rounded-2xl border border-zinc-200 bg-white px-4 text-sm text-zinc-900 shadow-sm focus:outline-none"
+              className="h-11 w-full rounded-2xl border border-zinc-200 bg-sky-50 px-4 text-sm text-zinc-900 shadow-sm focus:outline-none"
               value={contactPhone}
               onChange={(event) => setContactPhone(event.target.value)}
             />
           </label>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4">
           <label className="grid gap-2 text-sm">
             <div className="text-zinc-800">Contact email</div>
             <input
               type="email"
-              className="h-11 w-full rounded-2xl border border-zinc-200 bg-white px-4 text-sm text-zinc-900 shadow-sm focus:outline-none"
+              className="h-11 w-full rounded-2xl border border-zinc-200 bg-sky-50 px-4 text-sm text-zinc-900 shadow-sm focus:outline-none"
               value={contactEmail}
               onChange={(event) => setContactEmail(event.target.value)}
             />

@@ -47,7 +47,7 @@ export default function PhotoField({
           }}
         />
 
-        <span className="relative inline-flex h-40 w-full items-center justify-center overflow-hidden rounded-[1.25rem] border border-zinc-200 bg-white px-4 text-sm font-semibold text-zinc-900 shadow-sm">
+        <span className="relative inline-flex h-40 w-full items-center justify-center overflow-hidden rounded-[1.25rem] border border-zinc-200 bg-sky-50 px-4 text-sm font-semibold text-zinc-900 shadow-sm">
           {previewUrl ? (
             <Image
               src={previewUrl}
@@ -72,7 +72,7 @@ export default function PhotoField({
             className={
               value
                 ? "absolute right-3 top-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-[var(--accent)] text-black shadow disabled:opacity-60"
-                : "absolute right-3 top-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-zinc-200 text-black shadow opacity-50"
+                : "absolute right-3 top-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white text-black shadow opacity-60"
             }
           >
             {isGenerating ? (

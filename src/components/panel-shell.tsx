@@ -12,8 +12,25 @@ export default function PanelShell({
   hidden,
 }: PanelShellProps) {
   return (
-    <div className="pointer-events-none absolute inset-0 z-30">
+    <div
+      className={
+        hidden
+          ? "pointer-events-none absolute inset-0 z-30"
+          : "pointer-events-auto absolute inset-0 z-30"
+      }
+    >
+      <button
+        type="button"
+        aria-label="Close"
+        onClick={onClose}
+        className={
+          hidden
+            ? "pointer-events-none absolute inset-0 bg-black/20 opacity-0 backdrop-blur-sm transition-opacity"
+            : "pointer-events-auto absolute inset-0 bg-black/20 opacity-100 backdrop-blur-sm transition-opacity"
+        }
+      />
       <div
+        onClick={(event) => event.stopPropagation()}
         className={
           hidden
             ? "pointer-events-none fixed bottom-0 left-0 flex h-[82dvh] w-full translate-y-full flex-col rounded-t-[2.25rem] border border-[var(--panel-border)] bg-white/95 px-5 pb-6 pt-3 text-zinc-900 opacity-0 shadow-2xl backdrop-blur transition-all md:bottom-auto md:left-auto md:right-6 md:top-20 md:h-[calc(100dvh-7rem)] md:w-[24rem] md:translate-x-0 md:translate-y-0 md:rounded-[2.25rem]"
