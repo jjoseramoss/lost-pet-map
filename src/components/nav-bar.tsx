@@ -115,7 +115,7 @@ export default function NavBar({ onSelect, activeId, panelOpen }: NavBarProps) {
                 className={
                   item.id === activeId
                     ? "flex w-full items-center justify-center gap-2 rounded-full bg-zinc-900 px-3 py-3 text-sm font-semibold text-white shadow md:h-14 md:w-14 md:gap-0 md:px-0"
-                    : "flex w-full items-center justify-center gap-2 rounded-full px-3 py-3 text-sm font-semibold text-zinc-900 hover:bg-[color-mix(in_srgb,var(--accent)_18%,transparent)] md:h-14 md:w-14 md:gap-0 md:px-0"
+                    : "flex w-full items-center justify-center gap-2 rounded-full px-3 py-3 text-sm font-semibold text-zinc-900 hover:bg-[#345AC0] hover:text-white md:h-14 md:w-14 md:gap-0 md:px-0"
                 }
                 onClick={() => onSelect(item.id)}
                 aria-label={item.label}
