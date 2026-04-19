@@ -1,5 +1,5 @@
 import Image from "next/image";
-import logo from "@/app/projectLogo.png";
+import logo from "@/app/logo-transparent.png";
 
 export default function AppTitle() {
   return (
@@ -13,4 +13,3 @@ export default function AppTitle() {
     </div>
   );
 }
-

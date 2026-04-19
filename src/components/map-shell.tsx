@@ -7,11 +7,17 @@ import AppTitle from "@/components/app-title";
 import AboutPanel from "@/components/about-panel";
 import ReportPanel from "@/components/report-panel";
 import NavBar, { type NavItemId } from "@/components/nav-bar";
+import FilterBar, { defaultFilters, type FiltersState } from "@/components/filters/filter-bar";
 
 export default function MapShell() {
   const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
   const [showIntro, setShowIntro] = useState(true);
   const [activePanel, setActivePanel] = useState<Exclude<NavItemId, "map"> | null>(null);
+  const [filters, setFilters] = useState<FiltersState>(defaultFilters);
+  const [filterOptions, setFilterOptions] = useState({ breeds: [], colors: [] } as {
+    breeds: string[];
+    colors: string[];
+  });
   const [initialViewState, setInitialViewState] = useState({
     longitude: -98.23,
     latitude: 26.2,
@@ -60,9 +66,16 @@ export default function MapShell() {
         mapboxToken={mapboxToken}
         initialViewState={initialViewState}
         interactive={!showIntro && !activePanel}
+        filters={filters}
+        onFiltersChange={setFilters}
+        onFilterOptionsChange={setFilterOptions}
       />
 
       {!showIntro ? <AppTitle /> : null}
+
+      {!showIntro && !activePanel ? (
+        <FilterBar value={filters} onChange={setFilters} options={filterOptions} />
+      ) : null}
 
       {showIntro ? <IntroOverlay onContinue={() => setShowIntro(false)} /> : null}
       {activePanel === "report" ? (
