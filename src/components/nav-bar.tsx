@@ -17,8 +17,8 @@ export default function NavBar({ onSelect, panelOpen }: NavBarProps) {
       <nav
         className={
           panelOpen
-            ? "pointer-events-auto fixed bottom-[calc(50dvh+1rem)] left-1/2 w-[min(28rem,calc(100%-2rem))] -translate-x-1/2 rounded-2xl border border-[var(--panel-border)] bg-[var(--panel)] p-2 shadow-xl backdrop-blur md:bottom-auto md:left-4 md:top-1/2 md:w-20 md:-translate-x-0 md:-translate-y-1/2"
-            : "pointer-events-auto fixed bottom-4 left-1/2 w-[min(28rem,calc(100%-2rem))] -translate-x-1/2 rounded-2xl border border-[var(--panel-border)] bg-[var(--panel)] p-2 shadow-xl backdrop-blur md:bottom-auto md:left-4 md:top-1/2 md:w-20 md:-translate-x-0 md:-translate-y-1/2"
+            ? "pointer-events-auto fixed bottom-[calc(50dvh+1rem)] left-1/2 w-[min(22rem,calc(100%-2rem))] -translate-x-1/2 rounded-[1.75rem] border border-[var(--panel-border)] bg-white/95 p-2 shadow-2xl backdrop-blur md:bottom-auto md:left-4 md:top-1/2 md:w-16 md:-translate-x-0 md:-translate-y-1/2"
+            : "pointer-events-auto fixed bottom-4 left-1/2 w-[min(22rem,calc(100%-2rem))] -translate-x-1/2 rounded-[1.75rem] border border-[var(--panel-border)] bg-white/95 p-2 shadow-2xl backdrop-blur md:bottom-auto md:left-4 md:top-1/2 md:w-16 md:-translate-x-0 md:-translate-y-1/2"
         }
       >
         <ul className="flex items-center justify-between gap-2 md:flex-col md:justify-center">
@@ -26,7 +26,7 @@ export default function NavBar({ onSelect, panelOpen }: NavBarProps) {
             <li key={item.id} className="flex-1 md:flex-none">
               <button
                 type="button"
-                className="flex w-full items-center justify-center rounded-xl px-3 py-3 text-sm font-semibold text-zinc-900 hover:bg-[color-mix(in_srgb,var(--accent)_18%,transparent)] md:h-14 md:w-14 md:px-0 md:text-xs"
+                className="flex w-full items-center justify-center rounded-2xl px-3 py-3 text-sm font-semibold text-zinc-900 hover:bg-[color-mix(in_srgb,var(--accent)_25%,transparent)] md:h-12 md:w-12 md:px-0 md:text-[11px]"
                 onClick={() => onSelect(item.id)}
               >
                 {item.label}

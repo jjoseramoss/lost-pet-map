@@ -49,7 +49,7 @@ const mapConfig: { basemap: Record<string, string | boolean> } = {
     showAdminBoundaries: false,
     colorAdminBoundaries: "#d9d9d9",
     show3dObjects: false,
-    show3dBuildings: false,
+    show3dBuildings: true,
     show3dTrees: false,
     show3dLandmarks: false,
     showLandmarkIconLabels: false,

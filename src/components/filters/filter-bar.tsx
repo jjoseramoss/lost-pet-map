@@ -302,7 +302,7 @@ export default function FilterBar({
   return (
     <div className="pointer-events-none absolute right-4 top-4 z-20">
       <div className="flex items-start justify-end gap-3">
-        <div className="pointer-events-auto hidden w-[360px] rounded-2xl border border-[var(--panel-border)] bg-[var(--panel)] p-2 text-black shadow-xl backdrop-blur md:block">
+        <div className="pointer-events-auto hidden w-[340px] rounded-[1.75rem] border border-[var(--panel-border)] bg-white/95 p-3 text-black shadow-2xl backdrop-blur md:block">
           <FiltersPanel value={value} onChange={onChange} options={options} />
         </div>
 
@@ -310,7 +310,7 @@ export default function FilterBar({
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="h-10 rounded-full bg-[var(--accent)] px-4 text-sm font-semibold text-black shadow-xl"
+            className="h-11 rounded-full bg-[var(--accent)] px-5 text-sm font-semibold text-black shadow-2xl"
           >
             Filters
           </button>
