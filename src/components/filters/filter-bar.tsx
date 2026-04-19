@@ -318,7 +318,10 @@ export default function FilterBar({
       </div>
 
       {open ? (
-        <div className="pointer-events-auto fixed inset-0 z-30 bg-black/40" onClick={() => setOpen(false)}>
+        <div
+          className="pointer-events-auto fixed inset-0 z-30 bg-black/40"
+          onClick={() => setOpen(false)}
+        >
           <div
             className="absolute bottom-0 left-0 right-0 max-h-[85vh] overflow-auto rounded-t-3xl bg-white p-4"
             onClick={(event) => event.stopPropagation()}
