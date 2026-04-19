@@ -4,9 +4,26 @@ import Image from "next/image";
 import type { PetPost } from "@/lib/posts/types";
 import { getPublicStorageUrl } from "@/lib/storage/public-url";
 
-function Pill({ children }: { children: React.ReactNode }) {
+function pillClasses(variant: "neutral" | "lost" | "found" | "shelter") {
+  switch (variant) {
+    case "lost":
+      return "bg-amber-100 text-amber-900 ring-1 ring-amber-200";
+    case "found":
+      return "bg-emerald-100 text-emerald-900 ring-1 ring-emerald-200";
+    case "shelter":
+      return "bg-sky-100 text-sky-900 ring-1 ring-sky-200";
+    default:
+      return "bg-zinc-100 text-zinc-900 ring-1 ring-zinc-200";
+  }
+}
+
+function Pill({ children, variant }: { children: React.ReactNode; variant?: "neutral" | "lost" | "found" | "shelter" }) {
   return (
-    <div className="inline-flex items-center rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-semibold text-zinc-900">
+    <div
+      className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${pillClasses(
+        variant ?? "neutral",
+      )}`}
+    >
       {children}
     </div>
   );
@@ -60,7 +77,7 @@ export default function PetProfilePanel({
               {post.pet_name ?? "Unknown pet"}
             </div>
             <div className="mt-1 flex flex-wrap items-center gap-2">
-              <Pill>{post.post_type.toUpperCase()}</Pill>
+              <Pill variant={post.post_type}>{post.post_type.toUpperCase()}</Pill>
               <Pill>{post.species}</Pill>
               <Pill>{post.status}</Pill>
             </div>
@@ -92,13 +109,15 @@ export default function PetProfilePanel({
 
   return (
     <>
-      <div className="hidden md:fixed md:inset-y-0 md:right-0 md:z-30 md:block md:w-[420px] md:border-l md:border-zinc-200 md:bg-white md:shadow-xl">
-        <div className="h-full overflow-auto">{body}</div>
+      <div className="hidden md:fixed md:inset-y-0 md:right-0 md:z-30 md:block md:w-[440px] md:p-5">
+        <div className="h-full overflow-hidden rounded-[2.25rem] border border-[var(--panel-border)] bg-white/95 shadow-2xl backdrop-blur">
+          <div className="h-full overflow-auto">{body}</div>
+        </div>
       </div>
 
       <div className="md:hidden">
         <div className="fixed inset-0 z-30 bg-black/40" onClick={onClose} />
-        <div className="fixed bottom-0 left-0 right-0 z-40 max-h-[85vh] overflow-auto rounded-t-3xl bg-white shadow-xl">
+        <div className="fixed bottom-0 left-0 right-0 z-40 max-h-[85vh] overflow-auto rounded-t-[2.25rem] bg-white shadow-2xl">
           {body}
         </div>
       </div>

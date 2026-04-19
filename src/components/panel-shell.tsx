@@ -16,21 +16,25 @@ export default function PanelShell({
       <div
         className={
           hidden
-            ? "pointer-events-none fixed bottom-0 left-0 flex h-[50dvh] w-full translate-y-full flex-col rounded-t-3xl border-t border-white/10 bg-zinc-950/85 p-6 text-white opacity-0 shadow-2xl backdrop-blur transition-all md:bottom-auto md:left-auto md:right-0 md:top-0 md:h-full md:w-[26rem] md:translate-x-full md:translate-y-0 md:rounded-none md:border-l md:border-t-0"
-            : "pointer-events-auto fixed bottom-0 left-0 flex h-[50dvh] w-full flex-col rounded-t-3xl border-t border-white/10 bg-zinc-950/85 p-6 text-white shadow-2xl backdrop-blur transition-all md:bottom-auto md:left-auto md:right-0 md:top-0 md:h-full md:w-[26rem] md:rounded-none md:border-l md:border-t-0"
+            ? "pointer-events-none fixed bottom-0 left-0 flex h-[82dvh] w-full translate-y-full flex-col rounded-t-[2.25rem] border border-[var(--panel-border)] bg-white/95 px-5 pb-6 pt-3 text-zinc-900 opacity-0 shadow-2xl backdrop-blur transition-all md:bottom-auto md:left-auto md:right-6 md:top-20 md:h-[calc(100dvh-7rem)] md:w-[24rem] md:translate-x-0 md:translate-y-0 md:rounded-[2.25rem]"
+            : "pointer-events-auto fixed bottom-0 left-0 flex h-[82dvh] w-full flex-col rounded-t-[2.25rem] border border-[var(--panel-border)] bg-white/95 px-5 pb-6 pt-3 text-zinc-900 shadow-2xl backdrop-blur transition-all md:bottom-auto md:left-auto md:right-6 md:top-20 md:h-[calc(100dvh-7rem)] md:w-[24rem] md:rounded-[2.25rem]"
         }
       >
-        <div className="text-xl font-semibold">{title}</div>
+        <div className="mx-auto h-1.5 w-12 rounded-full bg-zinc-300" />
 
-        <div className="mt-6 min-h-0 flex-1 overflow-y-auto">{children}</div>
+        <div className="mt-4 flex items-center justify-between">
+          <div className="text-base font-semibold tracking-tight">{title}</div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--panel-border)] bg-white text-zinc-900 shadow"
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </div>
 
-        <button
-          type="button"
-          className="mt-6 inline-flex h-11 w-full shrink-0 items-center justify-center rounded-xl bg-white text-sm font-semibold text-black"
-          onClick={onClose}
-        >
-          Close
-        </button>
+        <div className="mt-4 min-h-0 flex-1 overflow-y-auto">{children}</div>
       </div>
     </div>
   );

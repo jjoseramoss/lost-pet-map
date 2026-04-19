@@ -28,8 +28,8 @@ export default function PhotoField({
   return (
     <label className="grid gap-2 text-sm">
       <div className="flex items-center justify-between">
-        <div className="text-white/80">Photo image</div>
-        <div className="text-xs text-white/60">Optional AI autofill</div>
+        <div className="text-zinc-800">Photo</div>
+        <div className="text-xs text-zinc-500">Optional AI autofill</div>
       </div>
 
       <label
@@ -47,7 +47,7 @@ export default function PhotoField({
           }}
         />
 
-        <span className="relative inline-flex h-36 w-full items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-white/5 px-4 text-sm font-medium text-white hover:bg-white/10">
+        <span className="relative inline-flex h-40 w-full items-center justify-center overflow-hidden rounded-[1.25rem] border border-zinc-200 bg-white px-4 text-sm font-semibold text-zinc-900 shadow-sm">
           {previewUrl ? (
             <Image
               src={previewUrl}
@@ -71,8 +71,8 @@ export default function PhotoField({
             title="Generate species/breed/color from image"
             className={
               value
-                ? "absolute right-3 top-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/95 text-black shadow disabled:opacity-60"
-                : "absolute right-3 top-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/50 text-black shadow opacity-50"
+                ? "absolute right-3 top-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-[var(--accent)] text-black shadow disabled:opacity-60"
+                : "absolute right-3 top-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-zinc-200 text-black shadow opacity-50"
             }
           >
             {isGenerating ? (
@@ -92,7 +92,7 @@ export default function PhotoField({
           </button>
 
           {hover && value ? (
-            <div className="absolute right-14 top-5 hidden rounded-lg bg-black/80 px-3 py-2 text-xs text-white md:block">
+            <div className="absolute right-14 top-5 hidden rounded-lg bg-zinc-900 px-3 py-2 text-xs text-white md:block">
               Autofill breed/color/species
             </div>
           ) : null}

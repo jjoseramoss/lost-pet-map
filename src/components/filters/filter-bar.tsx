@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { PostType } from "@/lib/posts/types";
+import PanelShell from "@/components/panel-shell";
 
 export type RadiusFilter = {
   enabled: boolean;
@@ -47,12 +48,10 @@ function Field({
   label,
   value,
   onChange,
-  placeholder,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
-  placeholder: string;
 }) {
   return (
     <label className="flex flex-col gap-1">
@@ -60,7 +59,6 @@ function Field({
       <input
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        placeholder={placeholder}
         className="h-8 w-full rounded-lg border border-zinc-200 bg-white px-2 text-sm text-black placeholder:text-black/80 outline-none focus:border-zinc-400"
       />
     </label>
@@ -71,14 +69,12 @@ function ComboField({
   label,
   value,
   onChange,
-  placeholder,
   options,
   listId,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
-  placeholder: string;
   options: string[];
   listId: string;
 }) {
@@ -88,7 +84,6 @@ function ComboField({
       <input
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        placeholder={placeholder}
         list={listId}
         className="h-8 w-full rounded-lg border border-zinc-200 bg-white px-2 text-sm text-black placeholder:text-black/80 outline-none focus:border-zinc-400"
       />
@@ -101,7 +96,7 @@ function ComboField({
   );
 }
 
-function FiltersPanel({
+function FiltersPanelBody({
   value,
   onChange,
   options,
@@ -125,57 +120,56 @@ function FiltersPanel({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
-        <label className="flex flex-col gap-1">
-          <span className="text-[11px] font-medium text-black">Type</span>
-          <select
-            value={value.postType}
-            onChange={(event) =>
-              onChange({
-                ...value,
-                postType: event.target.value as FiltersState["postType"],
-              })
-            }
-            className="h-8 w-full rounded-lg border border-zinc-200 bg-white px-2 text-sm text-black outline-none focus:border-zinc-400"
-          >
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-1">
+          <div className="text-[11px] font-medium text-black">Type</div>
+          <div className="grid grid-cols-2 gap-2 rounded-xl bg-zinc-100 p-1 sm:grid-cols-4">
             {postTypeOptions.map((option) => (
-              <option key={option} value={option}>
+              <button
+                key={option}
+                type="button"
+                onClick={() => onChange({ ...value, postType: option })}
+                className={
+                  value.postType === option
+                    ? "h-9 rounded-lg bg-white text-sm font-semibold text-zinc-900 shadow"
+                    : "h-9 rounded-lg text-sm font-semibold text-zinc-700 hover:bg-white/70"
+                }
+              >
                 {option}
-              </option>
+              </button>
             ))}
-          </select>
-        </label>
+          </div>
+        </div>
 
-        <ComboField
-          label="Breed"
-          value={value.breed}
-          onChange={(breed) => onChange({ ...value, breed })}
-          placeholder="type to search"
-          options={breedOptions}
-          listId="breed-options"
-        />
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <ComboField
+            label="Breed"
+            value={value.breed}
+            onChange={(breed) => onChange({ ...value, breed })}
+            options={breedOptions}
+            listId="breed-options"
+          />
 
-        <ComboField
-          label="Color"
-          value={value.color}
-          onChange={(color) => onChange({ ...value, color })}
-          placeholder="type to search"
-          options={colorOptions}
-          listId="color-options"
-        />
+          <ComboField
+            label="Color"
+            value={value.color}
+            onChange={(color) => onChange({ ...value, color })}
+            options={colorOptions}
+            listId="color-options"
+          />
 
-        <Field
-          label="Name"
-          value={value.petName}
-          onChange={(petName) => onChange({ ...value, petName })}
-          placeholder="e.g., Luna"
-        />
+          <Field
+            label="Name"
+            value={value.petName}
+            onChange={(petName) => onChange({ ...value, petName })}
+          />
+        </div>
       </div>
 
       <div className="flex items-center justify-between">
         <button
           type="button"
-          className="h-8 rounded-lg border border-zinc-200 bg-white px-2 text-sm"
+          className="h-9 rounded-full border border-zinc-200 bg-white px-4 text-sm font-semibold"
           onClick={() => setAdvancedOpen((open) => !open)}
         >
           {advancedOpen ? "Hide advanced" : "Advanced"}
@@ -183,7 +177,7 @@ function FiltersPanel({
 
         <button
           type="button"
-          className="h-8 rounded-lg border border-zinc-200 bg-white px-2 text-sm"
+          className="h-9 rounded-full border border-zinc-200 bg-white px-4 text-sm font-semibold"
           onClick={() => onChange(defaultFilters)}
         >
           Reset
@@ -191,7 +185,7 @@ function FiltersPanel({
       </div>
 
       {!advancedOpen ? null : (
-        <div className="rounded-xl border border-zinc-200 bg-white p-3">
+        <div className="rounded-2xl border border-zinc-200 bg-white p-4">
           <div className="flex items-center justify-between">
             <div className="text-sm font-semibold">Radius</div>
             <label className="flex items-center gap-2 text-xs text-black">
@@ -288,60 +282,22 @@ function FiltersPanel({
   );
 }
 
-export default function FilterBar({
+export default function FiltersPanel({
   value,
   onChange,
   options,
+  onClose,
 }: {
   value: FiltersState;
   onChange: (next: FiltersState) => void;
   options: FilterOptions;
+  onClose: () => void;
 }) {
-  const [open, setOpen] = useState(false);
-
   return (
-    <div className="pointer-events-none absolute right-4 top-4 z-20">
-      <div className="flex items-start justify-end gap-3">
-        <div className="pointer-events-auto hidden w-[360px] rounded-2xl border border-zinc-200 bg-white/95 p-2 text-black shadow md:block">
-          <FiltersPanel value={value} onChange={onChange} options={options} />
-        </div>
-
-        <div className="pointer-events-auto md:hidden">
-          <button
-            type="button"
-            onClick={() => setOpen(true)}
-            className="h-10 rounded-full bg-black px-4 text-sm font-semibold text-white shadow"
-          >
-            Filters
-          </button>
-        </div>
+    <PanelShell title="Filters" onClose={onClose}>
+      <div className="rounded-2xl bg-white/70 p-2 ring-1 ring-black/5">
+        <FiltersPanelBody value={value} onChange={onChange} options={options} />
       </div>
-
-      {open ? (
-        <div
-          className="pointer-events-auto fixed inset-0 z-30 bg-black/40"
-          onClick={() => setOpen(false)}
-        >
-          <div
-            className="absolute bottom-0 left-0 right-0 max-h-[85vh] overflow-auto rounded-t-3xl bg-white p-4"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <div className="flex items-center justify-between">
-              <div className="text-base font-semibold">Filters</div>
-              <button
-                type="button"
-                className="h-9 rounded-lg border border-zinc-200 bg-white px-3 text-sm"
-                onClick={() => setOpen(false)}
-              >
-                Done
-              </button>
-            </div>
-            <div className="mt-4">
-              <FiltersPanel value={value} onChange={onChange} options={options} />
-            </div>
-          </div>
-        </div>
-      ) : null}
-    </div>
+    </PanelShell>
   );
 }

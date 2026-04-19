@@ -19,10 +19,10 @@ export default function AboutPanel({ onClose }: AboutPanelProps) {
             className="h-8 w-8 object-contain"
           />
         </div>
-        <div className="text-sm text-white/80">Pet Scout</div>
+        <div className="text-sm font-semibold text-zinc-900">Pet Scout</div>
       </div>
 
-      <div className="mt-5 space-y-3 text-sm text-white/80">
+      <div className="mt-5 space-y-3 text-sm text-zinc-700">
         <div>
           Pet Scout is a community-powered map for lost pets and stray sightings.
           We combine reports from people in the area with listings from local

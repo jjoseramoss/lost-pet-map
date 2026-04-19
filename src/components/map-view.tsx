@@ -40,34 +40,56 @@ type MapViewProps = {
 
 const mapConfig: { basemap: Record<string, string | boolean> } = {
   basemap: {
-    lightPreset: "night",
-    colorMotorways: "#b3d4ff",
-    colorTrunks: "#b8bfff",
-    colorRoads: "#b3d0ff",
+    lightPreset: "day",
+    colorMotorways: "#a7d7f3",
+    colorTrunks: "#b2dbf5",
+    colorRoads: "#c9e8f9",
     showPointOfInterestLabels: false,
     showTransitLabels: false,
     showAdminBoundaries: false,
     colorAdminBoundaries: "#d9d9d9",
     show3dObjects: false,
-    show3dBuildings: false,
+    show3dBuildings: true,
     show3dTrees: false,
     show3dLandmarks: false,
     showLandmarkIconLabels: false,
     showIndoorLabels: false,
-    colorCommercial: "#d9d9d9",
-    colorEducation: "#ababab",
-    colorMedical: "#bfbbbb",
-    colorGreenspace: "#cccccc",
-    colorWater: "#85d6ff",
-    colorLand: "#969696",
+    colorCommercial: "#e7f3fa",
+    colorEducation: "#e7f3fa",
+    colorMedical: "#f3eef1",
+    colorGreenspace: "#e8f5ef",
+    colorWater: "#cdeeff",
+    colorLand: "#f5f6f7",
   },
 };
 
-function PinIcon({ title, photoUrl }: { title: string; photoUrl?: string }) {
+function pinColors(postType: PetPost["post_type"]) {
+  switch (postType) {
+    case "found":
+      return { border: "border-emerald-500", tip: "border-t-emerald-500" };
+    case "shelter":
+      return { border: "border-sky-500", tip: "border-t-sky-500" };
+    default:
+      return { border: "border-red-500", tip: "border-t-red-500" };
+  }
+}
+
+function PinIcon({
+  title,
+  photoUrl,
+  postType,
+}: {
+  title: string;
+  photoUrl?: string;
+  postType: PetPost["post_type"];
+}) {
+  const colors = pinColors(postType);
   return (
     <div title={title} className="drop-shadow">
       <div className="relative flex h-14 w-14 flex-col items-center">
-        <div className="relative z-10 h-12 w-12 overflow-hidden rounded-full border-2 border-red-500 bg-white shadow-sm">
+        <div
+          className={`relative z-10 h-12 w-12 overflow-hidden rounded-full border-2 bg-white shadow-sm ${colors.border}`}
+        >
           <Image
             src={photoUrl ?? lostDogPhoto}
             alt=""
@@ -78,9 +100,21 @@ function PinIcon({ title, photoUrl }: { title: string; photoUrl?: string }) {
             priority={false}
           />
         </div>
-        <div className="absolute top-10 h-0 w-0 border-l-[12px] border-r-[12px] border-t-[18px] border-l-transparent border-r-transparent border-t-red-500" />
+        <div
+          className={`absolute top-10 h-0 w-0 border-l-[12px] border-r-[12px] border-t-[18px] border-l-transparent border-r-transparent ${colors.tip}`}
+        />
       </div>
     </div>
+  );
+}
+
+function InfoIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden="true">
+      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
+      <path d="M12 10v6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <path d="M12 7h.01" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+    </svg>
   );
 }
 
@@ -100,6 +134,7 @@ export default function MapView({
   const [zoom, setZoom] = useState(initialViewState.zoom);
   const [posts, setPosts] = useState<PetPost[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [showKey, setShowKey] = useState(false);
 
   const selected = useMemo(
     () => posts.find((pin) => pin.id === selectedId) ?? null,
@@ -273,6 +308,58 @@ export default function MapView({
           }
         }}
       >
+        <div className="pointer-events-none absolute left-4 top-4 z-10">
+          <div className="pointer-events-auto inline-flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowKey(true)}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--panel-border)] bg-white/95 text-zinc-900 shadow-xl backdrop-blur"
+              aria-label="Marker key"
+            >
+              <InfoIcon />
+            </button>
+          </div>
+        </div>
+
+        {showKey ? (
+          <div
+            className="pointer-events-auto fixed inset-0 z-30 bg-black/30"
+            onClick={() => setShowKey(false)}
+          >
+            <div
+              className="absolute left-4 right-4 top-16 rounded-2xl border border-[var(--panel-border)] bg-white/95 p-4 text-zinc-900 shadow-2xl backdrop-blur md:left-4 md:right-auto md:top-16 md:w-72"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <div className="flex items-center justify-between">
+                <div className="text-sm font-semibold">Marker key</div>
+                <button
+                  type="button"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[var(--panel-border)] bg-white text-zinc-900 shadow"
+                  onClick={() => setShowKey(false)}
+                  aria-label="Close"
+                >
+                  ×
+                </button>
+              </div>
+
+              <div className="mt-3 space-y-2 text-sm">
+                <div className="flex items-center gap-2">
+                  <span className="h-3 w-3 rounded-full border-2 border-red-500 bg-white" />
+                  <span>Lost</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="h-3 w-3 rounded-full border-2 border-emerald-500 bg-white" />
+                  <span>Found</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="h-3 w-3 rounded-full border-2 border-sky-500 bg-white" />
+                  <span>Shelter</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : null}
+
         {loadError ? (
           <div className="absolute left-4 top-4 z-10 rounded-lg bg-white/90 px-3 py-2 text-xs text-red-700 shadow">
             {loadError}
@@ -332,6 +419,7 @@ export default function MapView({
                   <PinIcon
                     title={pin.pet_name ?? `${pin.post_type} ${pin.species}`}
                     photoUrl={getPublicStorageUrl(photoBucket, pin.photo_path)}
+                    postType={pin.post_type}
                   />
                 </div>
               </Marker>
