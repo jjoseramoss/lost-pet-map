@@ -27,7 +27,7 @@ export default function PanelShell({
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-zinc-900 text-white"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--panel-border)] bg-white text-zinc-900 shadow"
             aria-label="Close"
           >
             ×

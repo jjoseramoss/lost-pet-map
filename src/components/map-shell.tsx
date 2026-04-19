@@ -7,7 +7,7 @@ import AppTitle from "@/components/app-title";
 import AboutPanel from "@/components/about-panel";
 import ReportPanel from "@/components/report-panel";
 import NavBar, { type NavItemId } from "@/components/nav-bar";
-import FilterBar, { defaultFilters, type FiltersState } from "@/components/filters/filter-bar";
+import FiltersPanel, { defaultFilters, type FiltersState } from "@/components/filters/filter-bar";
 import PetProfilePanel from "@/components/pet-profile-panel";
 import type { PetPost } from "@/lib/posts/types";
 
@@ -90,10 +90,6 @@ export default function MapShell() {
 
       {!showIntro ? <AppTitle /> : null}
 
-      {!showIntro && !activePanel && !selectedPost ? (
-        <FilterBar value={filters} onChange={setFilters} options={filterOptions} />
-      ) : null}
-
       {selectedPost ? (
         <PetProfilePanel post={selectedPost} onClose={() => setSelectedPost(null)} />
       ) : null}
@@ -118,9 +114,19 @@ export default function MapShell() {
       {activePanel === "about" ? (
         <AboutPanel onClose={() => setActivePanel(null)} />
       ) : null}
+
+      {activePanel === "filters" ? (
+        <FiltersPanel
+          value={filters}
+          onChange={setFilters}
+          options={filterOptions}
+          onClose={() => setActivePanel(null)}
+        />
+      ) : null}
       {!showIntro ? (
         <NavBar
           panelOpen={Boolean(activePanel) && !isPickingLocation}
+          activeId={activePanel ?? "map"}
           onSelect={(id) => {
             if (id === "map") {
               setActivePanel(null);
