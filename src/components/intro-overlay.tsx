@@ -8,7 +8,7 @@ type IntroOverlayProps = {
 export default function IntroOverlay({ onContinue }: IntroOverlayProps) {
   return (
     <div className="absolute inset-0 z-10 flex w-full items-center justify-center bg-black/20 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-lg rounded-xl border border-white/10 bg-zinc-950/70 p-10 text-white shadow-sm backdrop-blur">
+      <div className="w-full max-w-lg rounded-xl border border-white/10 bg-[#345AC0] p-10 text-white shadow-sm">
         <div className="flex items-center justify-center gap-3">
           <div className="relative h-24 w-[min(28rem,90vw)]">
             <Image src={petScoutLogo} alt="Pet Scout" fill sizes="448px" className="object-contain" />
