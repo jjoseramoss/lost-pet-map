@@ -61,7 +61,7 @@ function Field({
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
-        className="h-8 w-full rounded-lg border border-zinc-200 bg-white px-2 text-sm outline-none focus:border-zinc-400"
+        className="h-8 w-full rounded-lg border border-zinc-200 bg-white px-2 text-sm text-black placeholder:text-black/80 outline-none focus:border-zinc-400"
       />
     </label>
   );
@@ -90,7 +90,7 @@ function ComboField({
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
         list={listId}
-        className="h-8 w-full rounded-lg border border-zinc-200 bg-white px-2 text-sm outline-none focus:border-zinc-400"
+        className="h-8 w-full rounded-lg border border-zinc-200 bg-white px-2 text-sm text-black placeholder:text-black/80 outline-none focus:border-zinc-400"
       />
       <datalist id={listId}>
         {options.map((option) => (
@@ -136,7 +136,7 @@ function FiltersPanel({
                 postType: event.target.value as FiltersState["postType"],
               })
             }
-            className="h-8 w-full rounded-lg border border-zinc-200 bg-white px-2 text-sm outline-none focus:border-zinc-400"
+            className="h-8 w-full rounded-lg border border-zinc-200 bg-white px-2 text-sm text-black outline-none focus:border-zinc-400"
           >
             {postTypeOptions.map((option) => (
               <option key={option} value={option}>
@@ -300,9 +300,9 @@ export default function FilterBar({
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="pointer-events-none absolute left-0 top-0 z-20 w-full p-3">
-      <div className="mx-auto flex w-full max-w-4xl items-start justify-end gap-3">
-        <div className="pointer-events-auto hidden w-[420px] rounded-2xl border border-zinc-200 bg-white/95 p-2 shadow md:block">
+    <div className="pointer-events-none absolute right-4 top-4 z-20">
+      <div className="flex items-start justify-end gap-3">
+        <div className="pointer-events-auto hidden w-[360px] rounded-2xl border border-zinc-200 bg-white/95 p-2 text-black shadow md:block">
           <FiltersPanel value={value} onChange={onChange} options={options} />
         </div>
 
