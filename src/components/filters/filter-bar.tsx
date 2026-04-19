@@ -302,7 +302,7 @@ export default function FilterBar({
   return (
     <div className="pointer-events-none absolute right-4 top-4 z-20">
       <div className="flex items-start justify-end gap-3">
-        <div className="pointer-events-auto hidden w-[360px] rounded-2xl border border-zinc-200 bg-white/95 p-2 text-black shadow md:block">
+        <div className="pointer-events-auto hidden w-[360px] rounded-2xl border border-[var(--panel-border)] bg-[var(--panel)] p-2 text-black shadow-xl backdrop-blur md:block">
           <FiltersPanel value={value} onChange={onChange} options={options} />
         </div>
 
@@ -310,7 +310,7 @@ export default function FilterBar({
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="h-10 rounded-full bg-black px-4 text-sm font-semibold text-white shadow"
+            className="h-10 rounded-full bg-[var(--accent)] px-4 text-sm font-semibold text-black shadow-xl"
           >
             Filters
           </button>
@@ -319,18 +319,18 @@ export default function FilterBar({
 
       {open ? (
         <div
-          className="pointer-events-auto fixed inset-0 z-30 bg-black/40"
+          className="pointer-events-auto fixed inset-0 z-30 bg-black/30"
           onClick={() => setOpen(false)}
         >
           <div
-            className="absolute bottom-0 left-0 right-0 max-h-[85vh] overflow-auto rounded-t-3xl bg-white p-4"
+            className="absolute bottom-0 left-0 right-0 max-h-[85vh] overflow-auto rounded-t-3xl bg-white/95 p-4 text-black shadow-2xl backdrop-blur"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-center justify-between">
               <div className="text-base font-semibold">Filters</div>
               <button
                 type="button"
-                className="h-9 rounded-lg border border-zinc-200 bg-white px-3 text-sm"
+                className="h-9 rounded-lg border border-[var(--panel-border)] bg-white px-3 text-sm font-semibold"
                 onClick={() => setOpen(false)}
               >
                 Done

@@ -40,10 +40,10 @@ type MapViewProps = {
 
 const mapConfig: { basemap: Record<string, string | boolean> } = {
   basemap: {
-    lightPreset: "night",
-    colorMotorways: "#b3d4ff",
-    colorTrunks: "#b8bfff",
-    colorRoads: "#b3d0ff",
+    lightPreset: "day",
+    colorMotorways: "#a7d7f3",
+    colorTrunks: "#b2dbf5",
+    colorRoads: "#c9e8f9",
     showPointOfInterestLabels: false,
     showTransitLabels: false,
     showAdminBoundaries: false,
@@ -54,12 +54,12 @@ const mapConfig: { basemap: Record<string, string | boolean> } = {
     show3dLandmarks: false,
     showLandmarkIconLabels: false,
     showIndoorLabels: false,
-    colorCommercial: "#d9d9d9",
-    colorEducation: "#ababab",
-    colorMedical: "#bfbbbb",
-    colorGreenspace: "#cccccc",
-    colorWater: "#85d6ff",
-    colorLand: "#969696",
+    colorCommercial: "#e7f3fa",
+    colorEducation: "#e7f3fa",
+    colorMedical: "#f3eef1",
+    colorGreenspace: "#e8f5ef",
+    colorWater: "#cdeeff",
+    colorLand: "#f5f6f7",
   },
 };
 

@@ -3,6 +3,9 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --accent: #85c4e9;
+  --panel: rgba(255, 255, 255, 0.92);
+  --panel-border: rgba(15, 23, 42, 0.10);
 }
 
 @theme inline {
@@ -16,6 +19,8 @@
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --panel: rgba(10, 10, 10, 0.70);
+    --panel-border: rgba(255, 255, 255, 0.12);
   }
 }
 
