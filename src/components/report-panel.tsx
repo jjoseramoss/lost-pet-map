@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { type FormEvent, useEffect, useMemo, useState } from "react";
-import logo from "@/app/projectLogo.png";
+import logo from "@/app/logo-transparent.png";
 import PanelShell from "@/components/panel-shell";
 import PhotoField from "@/components/report/photo-field";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
@@ -224,8 +224,8 @@ export default function ReportPanel({
   return (
     <PanelShell title="Report" onClose={onClose} hidden={hidden}>
       <div className="flex items-center gap-3">
-        <div className="relative h-10 w-10 overflow-hidden rounded-lg bg-white/5">
-          <Image src={logo} alt="" fill sizes="40px" className="object-contain" />
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white p-1 ring-1 ring-white/15">
+          <Image src={logo} alt="Pet Scout logo" width={32} height={32} className="h-8 w-8 object-contain" />
         </div>
         <div className="text-sm text-white/80">Pet Scout</div>
       </div>
