@@ -12,8 +12,8 @@ import PetProfilePanel from "@/components/pet-profile-panel";
 import type { PetPost } from "@/lib/posts/types";
 
 const fallbackViewState = {
-  longitude: -98.23,
-  latitude: 26.2,
+  longitude: -98.18865064566482,
+  latitude: 26.290824093635237,
   zoom: 14,
   bearing: 0,
   pitch: 0,

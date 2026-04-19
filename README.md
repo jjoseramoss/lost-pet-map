@@ -1,36 +1,87 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Pet Scout (Lost Pet Map)
 
-## Getting Started
+Map-first web app for posting and finding missing pets. Pet Scout lets the community drop “Lost” and “Found” pins (with photos + details) so sightings and reports are visible on a shared map in real time.
 
-First, run the development server:
+## Hackathon Purpose
+
+When a pet goes missing, the first hours matter, but info usually gets scattered across group chats, social posts, and flyers. We built Pet Scout to be a lightweight, map-based “single place to look” where anyone can quickly:
+
+- Report a missing pet or a found/loose pet with a photo and location
+- See recent reports around them at a glance
+- Filter posts to narrow down what matters (lost vs found, species, etc.)
+
+The goal is to help neighbors coordinate faster, reduce duplicated posts, and improve the odds of a safe reunion.
+
+## Team
+
+- Jose Ramos
+- Hector Corpuz
+
+## Core Features
+
+- Map-first UI with pins for pet reports
+- Create a report (photo + description + optional contact info)
+- Location support (use device location or pick a point on the map)
+- Filters panel (post type/species and derived options like breed/color)
+- Realtime updates via Supabase Realtime (new posts appear without refresh)
+
+## Tech Stack
+
+- Frontend: Next.js (App Router) + React + TypeScript
+- Styling: Tailwind CSS
+- Maps: Mapbox GL via `react-map-gl`
+- Backend-as-a-Service: Supabase
+  - Postgres table: `public.pet_posts`
+  - Storage bucket: `pet-photos` (public)
+  - Realtime: `supabase_realtime` publication for `pet_posts`
+- Optional AI assist: server route that can infer basic pet attributes (species/breed/color) from an uploaded photo using an OpenAI-compatible API
+
+## Project Structure (high level)
+
+- `src/app/page.tsx`: full-screen map entry point
+- `src/components/map-shell.tsx`: app orchestrator (intro overlay, nav, panels, location picking)
+- `src/components/map-view.tsx`: Mapbox map + pin rendering + filtering
+- `src/components/report-panel.tsx`: report form (uploads photo to Storage, inserts row into `pet_posts`)
+- `src/lib/posts/*`: types and Supabase queries (including realtime)
+- `src/lib/supabase/browser.ts`: Supabase browser client
+- `src/app/api/ai/pet-attrs/route.ts`: optional AI endpoint
+- `supabase.sql`: reference schema + basic RLS policies for the MVP
+
+## Environment Variables
+
+Create `.env.local` (copy from `.env.example`) and set:
+
+- `NEXT_PUBLIC_MAPBOX_TOKEN` (required for the map)
+- `NEXT_PUBLIC_SUPABASE_URL` (required for Supabase)
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` (required for Supabase)
+
+Optional (only if you want AI attribute inference enabled):
+
+- `OPENAI_API_KEY`
+- `OPENAI_MODEL_PET_ATTRS` (default: `gpt-5.2`)
+- `OPENAI_BASE_URL` (defaults to `https://api.openai.com/v1`)
+
+## Supabase Setup
+
+1. Create a Supabase project
+2. Run `supabase.sql` in the SQL editor
+3. Create a public Storage bucket named `pet-photos`
+4. Ensure policies allow anonymous MVP usage:
+   - `public.pet_posts`: allow `select` + `insert` for `anon`
+   - Storage: allow uploads to `pet-photos` for `anon` (Supabase UI → Storage → Policies)
+
+The app expects each post row to include a `photo_path` in the `pet-photos` bucket.
+
+## Run Locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Notes / Hackathon Scope
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- This project is optimized for speed-to-demo: anonymous posting, minimal friction.
+- Production hardening ideas (not implemented here): authentication, stronger moderation, rate limiting, expiration workflows, and private contact-handling.
