@@ -7,10 +7,11 @@ export type AiPetAttrs = {
 export function getOpenAiConfig() {
   const apiKey = process.env.OPENAI_API_KEY;
   const baseUrl = process.env.OPENAI_BASE_URL || "https://api.openai.com/v1";
+  const model = process.env.OPENAI_MODEL_PET_ATTRS || "gpt-5.2";
 
   if (!apiKey) throw new Error("Missing OPENAI_API_KEY");
 
-  return { apiKey, baseUrl };
+  return { apiKey, baseUrl, model };
 }
 
 function extractJson(text: string) {
@@ -23,7 +24,7 @@ function extractJson(text: string) {
 }
 
 export async function inferPetAttrsFromImage(params: { imageDataUrl: string }) {
-  const { apiKey, baseUrl } = getOpenAiConfig();
+  const { apiKey, baseUrl, model } = getOpenAiConfig();
 
   const response = await fetch(`${baseUrl}/chat/completions`, {
     method: "POST",
@@ -32,7 +33,7 @@ export async function inferPetAttrsFromImage(params: { imageDataUrl: string }) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: "gpt-4o-mini",
+      model,
       temperature: 0.2,
       messages: [
         {
